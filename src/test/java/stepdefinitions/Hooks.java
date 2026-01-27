@@ -9,12 +9,12 @@ import utils.DriverFactory;
 
 public class Hooks {
 
-    @Before
+    @Before("@UI")
     public void setUp() {
         DriverFactory.initDriver();
     }
 
-    @After
+    @After("@UI")
     public void tearDown(Scenario scenario) {
         if (scenario.isFailed()) {
             final byte[] screenshot = ((TakesScreenshot) DriverFactory.getDriver()).getScreenshotAs(OutputType.BYTES);

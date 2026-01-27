@@ -1,0 +1,84 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------< com.group01:automation-framework >------------------
+[INFO] Building automation-framework 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ automation-framework ---
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] skip non existing resourceDirectory D:\campus\campus notes\L4S1\ITQA\ITFac_Batch21_Group37\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ automation-framework ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ automation-framework ---
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] Copying 4 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ automation-framework ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.1.2:test (default-test) @ automation-framework ---
+[INFO] Using auto detected provider org.apache.maven.surefire.testng.TestNGProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running runners.TestRunner
+
+@M1-API-01
+Scenario: Verify that can be taken sorted Plants by Quantity (For Admin)                 # src/test/resources/features/api/sort_plants.feature:4
+Login Failed. Status: 500
+Response Body: {"status":500,"error":"INTERNAL_SERVER_ERROR","message":"No static resource login.","timestamp":"2026-01-27T14:30:44.823953"}
+  Given Admin has a valid authorization token                                            # stepdefinitions.api.PlantAPISteps.admin_has_a_valid_authorization_token()
+      java.lang.AssertionError: Login failed. Status Code: 500 expected [200] but found [500]
+	at org.testng.Assert.fail(Assert.java:111)
+	at org.testng.Assert.failNotEquals(Assert.java:1578)
+	at org.testng.Assert.assertEqualsImpl(Assert.java:150)
+	at org.testng.Assert.assertEquals(Assert.java:132)
+	at org.testng.Assert.assertEquals(Assert.java:1419)
+	at org.testng.Assert.assertEquals(Assert.java:1383)
+	at stepdefinitions.api.PlantAPISteps.admin_has_a_valid_authorization_token(PlantAPISteps.java:40)
+	at ?.Admin has a valid authorization token(file:///D:/campus/campus%20notes/L4S1/ITQA/ITFac_Batch21_Group37/src/test/resources/features/api/sort_plants.feature:5)
+
+  When Admin sends a GET request to "/api/plants/paged?page=0&size=10&sort=quantity,ASC" # stepdefinitions.api.PlantAPISteps.admin_sends_a_get_request_to(java.lang.String)
+  Then The API should return a status code of 200                                        # stepdefinitions.api.PlantAPISteps.the_api_should_return_a_status_code_of(int)
+  And The plant list should be sorted by Quantity in ascending order                     # stepdefinitions.api.PlantAPISteps.the_plant_list_should_be_sorted_by_quantity_in_ascending_order()
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 3.662 s <<< FAILURE! -- in runners.TestRunner
+[ERROR] runners.TestRunner.runScenario["Verify that can be taken sorted Plants by Quantity (For Admin)", "Sort Plants API"](1) -- Time elapsed: 2.003 s <<< FAILURE!
+java.lang.AssertionError: Login failed. Status Code: 500 expected [200] but found [500]
+	at org.testng.Assert.fail(Assert.java:111)
+	at org.testng.Assert.failNotEquals(Assert.java:1578)
+	at org.testng.Assert.assertEqualsImpl(Assert.java:150)
+	at org.testng.Assert.assertEquals(Assert.java:132)
+	at org.testng.Assert.assertEquals(Assert.java:1419)
+	at org.testng.Assert.assertEquals(Assert.java:1383)
+	at stepdefinitions.api.PlantAPISteps.admin_has_a_valid_authorization_token(PlantAPISteps.java:40)
+	at ?.Admin has a valid authorization token(file:///D:/campus/campus%20notes/L4S1/ITQA/ITFac_Batch21_Group37/src/test/resources/features/api/sort_plants.feature:5)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   TestRunner.runScenario Login failed. Status Code: 500 expected [200] but found [500]
+[INFO] 
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.806 s
+[INFO] Finished at: 2026-01-27T14:30:45+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.1.2:test (default-test) on project automation-framework: There are test failures.
+[ERROR] 
+[ERROR] Please refer to D:\campus\campus notes\L4S1\ITQA\ITFac_Batch21_Group37\target\surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

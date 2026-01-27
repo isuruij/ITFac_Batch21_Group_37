@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-repo/automation-framework.git'
+                git branch: 'main', url: 'https://github.com/isuruij/ITFac_Batch21_Group_37'
             }
         }
 

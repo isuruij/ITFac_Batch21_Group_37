@@ -1,5 +1,4 @@
-
-
+Feature: UI Tests (214154T)
   # Test Case: M1-UI-01
   @M1-UI-01 @UI
   Scenario: Verify that Admin can search Plants by Name

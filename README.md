@@ -1,4 +1,4 @@
-# Automation Framework Assignment - Group 01
+# ITFac_Batch21_Group37 Automation Framework (Team: Quality Nexus)
 
 This project implements a unified test automation framework using Cucumber, Selenium, and Rest Assured.
 
@@ -25,5 +25,5 @@ mvn clean test
 
 ### View Reports
 ```bash
-allure serve target/allure-results
+mvn allure:serve
 ```

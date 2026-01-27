@@ -12,40 +12,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class PlantAPISteps {
+public class APISteps_214154T {
 
     private String authToken;
     private Response response;
 
     @Given("Admin has a valid authorization token")
     public void admin_has_a_valid_authorization_token() {
-        // Authenticate as Admin to get the token
         Map<String, String> credentials = new HashMap<>();
         credentials.put("username", "admin");
-        credentials.put("password", "admin123"); // Correct credentials
+        credentials.put("password", "admin123");
 
-        // Try /api/auth/login first
         Response loginResponse = APIUtils.post("/api/auth/login", credentials, null);
 
         if (loginResponse.getStatusCode() != 200) {
-            // Fallback to /login
             loginResponse = APIUtils.post("/login", credentials, null);
         }
-        
-        // Debugging support - keeping it minimal just in case
+
         if (loginResponse.getStatusCode() != 200) {
-             System.out.println("Login Failed. Status: " + loginResponse.getStatusCode());
-             System.out.println("Response Body: " + loginResponse.getBody().asString());
+            System.out.println("Login Failed. Status: " + loginResponse.getStatusCode());
+            System.out.println("Response Body: " + loginResponse.getBody().asString());
         }
 
-        Assert.assertEquals(loginResponse.getStatusCode(), 200, "Login failed. Status Code: " + loginResponse.getStatusCode());
-        
-        // Extract token
+        Assert.assertEquals(loginResponse.getStatusCode(), 200,
+                "Login failed. Status Code: " + loginResponse.getStatusCode());
+
         authToken = loginResponse.jsonPath().getString("token");
         if (authToken == null) {
             authToken = loginResponse.jsonPath().getString("accessToken");
         }
-        
+
         Assert.assertNotNull(authToken, "Authorization token is null");
     }
 
@@ -61,7 +57,6 @@ public class PlantAPISteps {
 
     @Then("The plant list should be sorted by Quantity in ascending order")
     public void the_plant_list_should_be_sorted_by_quantity_in_ascending_order() {
-        // Extract quantities
         List<Integer> quantities = response.jsonPath().getList("content.quantity", Integer.class);
 
         if (quantities == null || quantities.isEmpty()) {
@@ -70,7 +65,6 @@ public class PlantAPISteps {
 
         Assert.assertNotNull(quantities, "No plant quantities found in response");
 
-        // Verify sorting
         List<Integer> sorted = quantities.stream().sorted().collect(Collectors.toList());
         Assert.assertEquals(quantities, sorted, "Plant list is not sorted by quantity");
     }

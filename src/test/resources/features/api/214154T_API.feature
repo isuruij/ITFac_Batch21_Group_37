@@ -1,6 +1,6 @@
-@M1-API-01
-Feature: Sort Plants API
 
+
+  @M1-API-01
   Scenario: Verify that can be taken sorted Plants by Quantity (For Admin)
     Given Admin has a valid authorization token
     When Admin sends a GET request to "/api/plants/paged?page=0&size=10&sort=quantity,ASC"

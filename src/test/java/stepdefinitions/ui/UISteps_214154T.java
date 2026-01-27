@@ -9,20 +9,15 @@ import pages.PlantsPage;
 import utils.ConfigReader;
 import utils.DriverFactory;
 
-public class PlantSteps {
+public class UISteps_214154T {
 
     LoginPage loginPage = new LoginPage(DriverFactory.getDriver());
     PlantsPage plantsPage = new PlantsPage(DriverFactory.getDriver());
 
     @Given("Admin is logged into the system")
     public void admin_is_logged_into_the_system() {
-        DriverFactory.getDriver().get(ConfigReader.getProperty("url") + "/ui/login"); // Assuming login page is
-                                                                                      // /ui/login based on form action
-        // Note: The HTML form action was /ui/login, but usually GET returns the page.
-        // If the base URL opens login directly, this is fine.
-        // Let's assume Valid Credentials for 'Admin' as per requirement "Logged in as
-        // Admin"
-        loginPage.login("admin", "admin123"); // You might need to change these credentials
+        DriverFactory.getDriver().get(ConfigReader.getProperty("url") + "/ui/login");
+        loginPage.login("admin", "admin123");
     }
 
     @When("Navigate to Plants tab using the side bar")

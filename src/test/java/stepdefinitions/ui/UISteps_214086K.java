@@ -44,15 +44,10 @@ public class UISteps_214086K {
                 "Category '" + categoryName + "' was not found in the list.");
     }
 
-    @After
-    public void tearDown() {
-        if (createdCategoryName != null) {
-            try {
-                categoriesPage.clickCategoriesTab(); // Ensure we are on the list page
-                categoriesPage.deleteCategory(createdCategoryName);
-            } catch (Exception e) {
-                System.out.println("Cleanup failed: " + e.getMessage());
-            }
-        }
+    @Then("Verify that the new category {string} with parent {string} is added to the list")
+    public void verify_that_the_new_category_is_added_to_the_list_under_parent(String categoryName, String parentName) {
+        Assert.assertTrue(categoriesPage.isCategoryInList(categoryName, parentName),
+                "Category '" + categoryName + "' with parent '" + parentName + "' was not found in the list.");
     }
+
 }

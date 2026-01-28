@@ -75,7 +75,7 @@ public class CategoriesPage {
         saveBtn.click();
     }
 
-    public boolean isCategoryInList(String categoryName) {
+    public boolean isCategoryInList(String categoryName, String parentCategoryName) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.presenceOfElementLocated(categoryRowsLocator));
 
@@ -84,8 +84,22 @@ public class CategoriesPage {
             try {
                 List<WebElement> rows = driver.findElements(categoryRowsLocator);
                 for (WebElement row : rows) {
-                    if (row.getText().toLowerCase().contains(categoryName.toLowerCase())) {
-                        return true;
+                    List<WebElement> cells = row.findElements(By.tagName("td"));
+                    if (cells.size() > 2) {
+                        // Check 2nd column (Name)
+                        boolean nameMatch = cells.get(1).getText().toLowerCase().contains(categoryName.toLowerCase());
+
+                        if (nameMatch) {
+                            if (parentCategoryName != null && !parentCategoryName.isEmpty()) {
+                                // Check 3rd column (Parent Category)
+                                String actualParent = cells.get(2).getText().trim();
+                                if (actualParent.equalsIgnoreCase(parentCategoryName)) {
+                                    return true;
+                                }
+                            } else {
+                                return true;
+                            }
+                        }
                     }
                 }
                 return false;
@@ -96,6 +110,10 @@ public class CategoriesPage {
         return false;
     }
 
+    public boolean isCategoryInList(String categoryName) {
+        return isCategoryInList(categoryName, null);
+    }
+
     public boolean isSuccessMessageDisplayed() {
         try {
             return successAlert.isDisplayed();
@@ -104,26 +122,4 @@ public class CategoriesPage {
         }
     }
 
-    public void deleteCategory(String categoryName) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.presenceOfElementLocated(categoryRowsLocator));
-
-        List<WebElement> rows = driver.findElements(categoryRowsLocator);
-        for (WebElement row : rows) {
-            if (row.getText().toLowerCase().contains(categoryName.toLowerCase())) {
-                WebElement deleteBtn = row.findElement(By.xpath(".//button[@title='Delete']"));
-                deleteBtn.click();
-
-                // Handle Alert if present
-                try {
-                    wait.until(ExpectedConditions.alertIsPresent());
-                    driver.switchTo().alert().accept();
-                } catch (Exception e) {
-                    // No alert appeared or handled by UI implementation differently
-                }
-                return;
-            }
-        }
-        throw new RuntimeException("Category not found for deletion: " + categoryName);
-    }
 }

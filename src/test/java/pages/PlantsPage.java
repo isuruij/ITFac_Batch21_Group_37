@@ -47,6 +47,13 @@ public class PlantsPage {
         searchBtn.click();
     }
 
+    @FindBy(xpath = "//a[contains(@href, '/ui/plants/add')]")
+    WebElement addPlantBtn;
+
+    public void clickAddPlant() {
+        addPlantBtn.click();
+    }
+
     public boolean isPlantInList(String plantName) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 

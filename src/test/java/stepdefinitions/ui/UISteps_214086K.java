@@ -11,14 +11,25 @@ import io.restassured.RestAssured;
 import java.util.List;
 import java.util.Map;
 
+import io.cucumber.java.en.Given;
+import pages.LoginPage;
+import utils.ConfigReader;
+
 public class UISteps_214086K {
 
     CategoriesPage categoriesPage = new CategoriesPage(DriverFactory.getDriver());
+    LoginPage loginPage = new LoginPage(DriverFactory.getDriver());
     private String createdCategoryName;
 
     @When("Navigate to Categories tab")
     public void navigate_to_categories_tab() {
         categoriesPage.clickCategoriesTab();
+    }
+
+    @Given("Test User is logged into the system")
+    public void test_user_is_logged_into_the_system() {
+        DriverFactory.getDriver().get(ConfigReader.getProperty("url") + "/ui/login");
+        loginPage.login("testuser", "test123");
     }
 
     @When("Click on Add a Category Button")
@@ -64,6 +75,21 @@ public class UISteps_214086K {
         // We will do a generic check.
         Assert.assertTrue(actualError.replace("\n", " ").contains(expectedError),
                 "Expected error '" + expectedError + "' not found in actual: '" + actualError + "'");
+    }
+
+    @When("Click on Cancel Button")
+    public void click_on_cancel_button() {
+        categoriesPage.clickCancel();
+    }
+
+    @Then("Verify that user is navigated to Category list page")
+    public void verify_that_user_is_navigated_to_category_list_page() {
+        Assert.assertTrue(categoriesPage.isCategoriesPageDisplayed(), "User was not navigated to Category List page.");
+    }
+
+    @Then("Verify that pagination is displayed")
+    public void verify_that_pagination_is_displayed() {
+        Assert.assertTrue(categoriesPage.isPaginationDisplayed(), "Pagination should be displayed.");
     }
 
     @After("@M2-UI-01 or @M2-UI-02")

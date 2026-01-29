@@ -46,6 +46,22 @@ Feature: UI Tests (214086K)
     And Click on Save button
     Then Verify "Category name must be between 3 and 10 characters" error message is displayed
 
+  @M2-UI-06 @UI
+  Scenario: Verify Cancel button navigation
+    Given Admin is logged into the system
+    When Navigate to Categories tab
+    And Click on Add a Category Button
+    And Click on Cancel Button
+    Then Verify that user is navigated to Category list page
+
+  @M2-UI-07 @UI
+  Scenario: Verify Test User View Category List
+    Given Test User is logged into the system
+    When Navigate to Categories tab
+    Then Verify that pagination is displayed
+
+
+
 
 
 

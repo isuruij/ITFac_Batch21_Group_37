@@ -129,4 +129,26 @@ public class CategoriesPage {
     public String getInvalidFeedbackText() {
         return invalidFeedback.getText();
     }
+
+    @FindBy(xpath = "//a[text()='Cancel']")
+    WebElement cancelBtn;
+
+    public void clickCancel() {
+        cancelBtn.click();
+    }
+
+    public boolean isCategoriesPageDisplayed() {
+        return driver.getCurrentUrl().contains("/ui/categories") && !driver.getCurrentUrl().contains("/add");
+    }
+
+    @FindBy(className = "pagination")
+    WebElement pagination;
+
+    public boolean isPaginationDisplayed() {
+        try {
+            return pagination.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

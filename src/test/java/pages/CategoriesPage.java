@@ -122,4 +122,11 @@ public class CategoriesPage {
         }
     }
 
+    // Error Feedback
+    @FindBy(className = "invalid-feedback")
+    WebElement invalidFeedback;
+
+    public String getInvalidFeedbackText() {
+        return invalidFeedback.getText();
+    }
 }

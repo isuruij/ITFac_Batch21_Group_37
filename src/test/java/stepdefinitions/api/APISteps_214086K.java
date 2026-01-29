@@ -27,18 +27,29 @@ public class APISteps_214086K {
         authToken = loginResponse.jsonPath().getString("token");
     }
 
-    @When("I send a POST request to {string} with valid category data")
-    public void i_send_a_post_request_to_with_valid_category_data(String endpoint) {
-        createdCategoryName = "maincat1";
+    @When("I send a POST request to create a category with name {string}")
+    public void i_send_a_post_request_to_create_a_category_with_name(String categoryName) {
+        createdCategoryName = categoryName;
         Map<String, String> body = new HashMap<>();
         body.put("name", createdCategoryName);
 
-        response = APIUtils.post(endpoint, body, authToken);
+        response = APIUtils.post("/api/categories", body, authToken);
     }
 
     @Then("The response status code should be {int}")
     public void the_response_status_code_should_be(int statusCode) {
         Assert.assertEquals(response.getStatusCode(), statusCode, "Unexpected status code");
+    }
+
+    @io.cucumber.java.After("@M2-API-01")
+    public void tearDown() {
+        if (response != null && response.getStatusCode() == 201) {
+            Integer categoryId = response.jsonPath().getInt("id");
+            if (categoryId != null) {
+                APIUtils.delete("/api/categories/" + categoryId, authToken);
+                System.out.println("API Cleanup: Deleted category with ID: " + categoryId);
+            }
+        }
     }
 
 }

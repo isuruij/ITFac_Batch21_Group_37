@@ -74,6 +74,13 @@ Feature: UI Tests (214086K)
     When Navigate to Categories tab
     Then Verify that Add Category button is hidden
 
+  @M2-UI-10 @UI
+  Scenario: Verify Delete button disabled or hidden for Test User
+    Given Test User is logged into the system
+    When Navigate to Categories tab
+    Then Verify that delete button is disabled or hidden
+
+
 
 
 

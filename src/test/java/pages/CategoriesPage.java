@@ -180,4 +180,26 @@ public class CategoriesPage {
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         }
     }
+
+    public boolean isAnyDeleteButtonDisplayed() {
+        try {
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
+            // Look for any delete button. Specifically check for the button inside the form
+            // as usually users have permission or not.
+            // Based on HTML provided: <button class="btn btn-sm btn-outline-danger"
+            // title="Delete">
+            List<WebElement> deleteButtons = driver.findElements(By.xpath("//button[@title='Delete']"));
+
+            // If buttons exist, check if any is displayed and enabled
+            if (!deleteButtons.isEmpty()) {
+                WebElement firstBtn = deleteButtons.get(0);
+                return firstBtn.isDisplayed() && firstBtn.isEnabled();
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        }
+    }
 }

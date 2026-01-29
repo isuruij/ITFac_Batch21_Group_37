@@ -114,6 +114,12 @@ public class UISteps_214086K {
                 "Add Category button should be hidden for Test User.");
     }
 
+    @Then("Verify that delete button is disabled or hidden")
+    public void verify_that_delete_button_is_disabled_or_hidden() {
+        Assert.assertFalse(categoriesPage.isAnyDeleteButtonDisplayed(),
+                "Delete button should be disabled or hidden for Test User.");
+    }
+
     @After("@M2-UI-01 or @M2-UI-02")
     public void tearDownAPI() {
         if (createdCategoryName == null)

@@ -151,4 +151,20 @@ public class CategoriesPage {
             return false;
         }
     }
+
+    // Search
+    @FindBy(name = "name")
+    WebElement searchInput;
+
+    @FindBy(xpath = "//button[text()='Search']")
+    WebElement searchBtn;
+
+    public void enterSearchKeyword(String keyword) {
+        searchInput.clear();
+        searchInput.sendKeys(keyword);
+    }
+
+    public void clickSearch() {
+        searchBtn.click();
+    }
 }

@@ -60,6 +60,15 @@ Feature: UI Tests (214086K)
     When Navigate to Categories tab
     Then Verify that pagination is displayed
 
+  @M2-UI-08 @UI
+  Scenario: Verify Test User Search Category
+    Given Test User is logged into the system
+    When Navigate to Categories tab
+    And Enter Search keyword "Indoor" in the input box
+    And Click on the search box
+    Then Verify that results are filtered for the keyword "Indoor"
+
+
 
 
 

@@ -92,6 +92,22 @@ public class UISteps_214086K {
         Assert.assertTrue(categoriesPage.isPaginationDisplayed(), "Pagination should be displayed.");
     }
 
+    @When("Enter Search keyword {string} in the input box")
+    public void enter_search_keyword_in_the_input_box(String keyword) {
+        categoriesPage.enterSearchKeyword(keyword);
+    }
+
+    @When("Click on the search box")
+    public void click_on_the_search_box() {
+        categoriesPage.clickSearch();
+    }
+
+    @Then("Verify that results are filtered for the keyword {string}")
+    public void verify_that_results_are_filtered_for_the_keyword(String keyword) {
+        Assert.assertTrue(categoriesPage.isCategoryInList(keyword),
+                "Category matching '" + keyword + "' not found in filtered list.");
+    }
+
     @After("@M2-UI-01 or @M2-UI-02")
     public void tearDownAPI() {
         if (createdCategoryName == null)

@@ -53,6 +53,18 @@ public class UISteps_214086K {
         categoriesPage.clickSave();
     }
 
+    @Then("Verify that the new category {string} is added to the list")
+    public void verify_that_the_new_category_is_added_to_the_list(String categoryName) {
+        Assert.assertTrue(categoriesPage.isCategoryInList(categoryName),
+                "Category '" + categoryName + "' was not found in the list.");
+    }
+
+    @Then("Verify that the new category {string} with parent {string} is added to the list")
+    public void verify_that_the_new_category_is_added_to_the_list_under_parent(String categoryName, String parentName) {
+        Assert.assertTrue(categoriesPage.isCategoryInList(categoryName, parentName),
+                "Category '" + categoryName + "' with parent '" + parentName + "' was not found in the list.");
+    }
+
     @Then("Verify {string} error message is displayed")
     public void verify_error_message_is_displayed(String expectedError) {
         String actualError = categoriesPage.getInvalidFeedbackText();

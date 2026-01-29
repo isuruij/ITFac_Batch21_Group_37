@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.List;
+import org.openqa.selenium.interactions.Actions;
 
 public class PlantsPage {
     WebDriver driver;
@@ -90,6 +91,25 @@ public class PlantsPage {
         // Simpler approach:
         WebElement editBtn = driver.findElement(By.xpath("//tr[td[contains(text(), '" + plantName + "')]]//a[contains(@href, 'edit')] | //tr[td[contains(text(), '" + plantName + "')]]//button"));
         editBtn.click();
+    }
+
+    public void clickDeletePlant(String plantName) {
+        // Find TR containing plantName, then find delete button
+        // Common patterns: button with class 'delete', 'danger', or containing 'Delete' text or trash icon
+        WebElement deleteBtn = driver.findElement(By.xpath("//tr[td[contains(text(), '" + plantName + "')]]//button[contains(@class, 'delete') or contains(@class, 'danger')] | //tr[td[contains(text(), '" + plantName + "')]]//a[contains(@href, 'delete')]"));
+        deleteBtn.click();
+        
+        // Handle potential alert
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+            if(wait.until(ExpectedConditions.alertIsPresent()) != null){
+                driver.switchTo().alert().accept();
+            }
+        } catch (Exception e) {
+            // No alert or not needed
+        }
+        
+        new Actions(driver).pause(Duration.ofSeconds(2)).perform();
     }
 
     public String getPlantPrice(String plantName) {

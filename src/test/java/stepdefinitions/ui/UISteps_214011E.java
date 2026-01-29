@@ -70,4 +70,16 @@ public class UISteps_214011E {
         String actualError = addPlantPage.getErrorMessage();
         Assert.assertTrue(actualError.contains(expectedError), "Expected error containing '" + expectedError + "' but got '" + actualError + "'");
     }
+
+    @When("Click delete icon on plant {string}")
+    public void click_delete_icon_on_plant(String plantName) {
+        plantsPage.clickDeletePlant(plantName);
+    }
+
+    @Then("Plant {string} is removed from the list")
+    public void plant_is_removed_from_the_list(String plantName) {
+        plantsPage.enterPlantName(plantName);
+        plantsPage.clickSearch();
+        Assert.assertFalse(plantsPage.isPlantInList(plantName), "Plant " + plantName + " was found in the list but should have been removed.");
+    }
 }

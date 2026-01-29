@@ -23,7 +23,7 @@ public class Hooks {
         DriverFactory.quitDriver();
     }
 
-    @After("@M3-UI-01")
+    @After("@M3-UI-01 or @M3-UI-02 or @M3-UI-03 or @M3-UI-04")
     public void tearDownAndCleanup() {
         // 1. Login to get token
         java.util.Map<String, String> credentials = new java.util.HashMap<>();
@@ -42,12 +42,14 @@ public class Hooks {
 
             if (plants != null) {
                 for (java.util.Map<String, Object> plant : plants) {
-                    if ("Rose".equals(plant.get("name"))) {
-                        Integer plantId = (Integer) plant.get("id");
-                        // 3. Delete the plant
-                        utils.APIUtils.delete("/api/plants/" + plantId, token);
-                        System.out.println("Cleaned up plant: Rose (ID: " + plantId + ")");
-                        break; 
+                    if (plant != null) {
+                        String name = (String) plant.get("name");
+                        if ("Rose".equals(name) || "Rose Edit".equals(name) || "Rose Val".equals(name) || "Rose Qty".equals(name)) {
+                            Integer plantId = (Integer) plant.get("id");
+                            // 3. Delete the plant
+                            utils.APIUtils.delete("/api/plants/" + plantId, token);
+                            System.out.println("Cleaned up plant: " + name + " (ID: " + plantId + ")");
+                        }
                     }
                 }
             }

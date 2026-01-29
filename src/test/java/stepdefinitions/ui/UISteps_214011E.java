@@ -46,23 +46,28 @@ public class UISteps_214011E {
     public void click_save_button() {
         addPlantPage.clickSave();
     }
+    
+    @When("Click edit icon on plant {string}")
+    public void click_edit_icon_on_plant(String plantName) {
+        plantsPage.clickEditPlant(plantName);
+    }
+
+    @Then("Plant {string} has price {string}")
+    public void plant_has_price(String plantName, String price) {
+        String plantInfo = plantsPage.getPlantPrice(plantName);
+        Assert.assertTrue(plantInfo.contains(price), "Price " + price + " not found for plant " + plantName + ". Row text: " + plantInfo);
+    }
 
     @Then("Plant {string} is added to the list")
     public void plant_is_added_to_the_list(String plantName) {
-        // Refresh to see the new plant if needed, or wait
-        // Based on PlantsPage.isPlantInList, it waits for table presence. 
-        // We might need to ensure the list is refreshed or search for it.
-        // The existing logic in UISteps_214154T uses search to verify.
-        // The scenario says "Plant is added to the list", implies it's visible. 
-        // I'll stick to isPlantInList which iterates rows. 
-        // However, usually adding a plant might redirect to list or stay on page.
-        // I'll assume it redirects to list or I need to navigate back?
-        // The user steps say "Plant is added to the list".
-        // Use existing search/verify logic might be safer.
-        // Logic: Search for it and verify.
-        
         plantsPage.enterPlantName(plantName);
         plantsPage.clickSearch();
         Assert.assertTrue(plantsPage.isPlantInList(plantName), "Plant " + plantName + " was not found in the list.");
+    }
+
+    @Then("Error message {string} is displayed")
+    public void error_message_is_displayed(String expectedError) {
+        String actualError = addPlantPage.getErrorMessage();
+        Assert.assertTrue(actualError.contains(expectedError), "Expected error containing '" + expectedError + "' but got '" + actualError + "'");
     }
 }

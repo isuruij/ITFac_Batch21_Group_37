@@ -25,6 +25,10 @@ public class AddPlantPage {
     @FindBy(xpath = "//button[text()='Save']")
     WebElement saveBtn;
 
+    // Error message: Assuming it's an alert or div with specific class
+    @FindBy(xpath = "//div[contains(@class, 'text-danger')]")
+    WebElement errorMessage;
+
     public AddPlantPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
@@ -52,5 +56,12 @@ public class AddPlantPage {
 
     public void clickSave() {
         saveBtn.click();
+    }
+
+    public String getErrorMessage() {
+        // Wait for visibility
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
+            .until(org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf(errorMessage));
+        return errorMessage.getText();
     }
 }

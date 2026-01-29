@@ -68,6 +68,13 @@ Feature: UI Tests (214086K)
     And Click on the search box
     Then Verify that results are filtered for the keyword "Indoor"
 
+  @M2-UI-09 @UI
+  Scenario: Verify Add Button Hidden for Test User
+    Given Test User is logged into the system
+    When Navigate to Categories tab
+    Then Verify that Add Category button is hidden
+
+
 
 
 

@@ -108,6 +108,12 @@ public class UISteps_214086K {
                 "Category matching '" + keyword + "' not found in filtered list.");
     }
 
+    @Then("Verify that Add Category button is hidden")
+    public void verify_that_add_category_button_is_hidden() {
+        Assert.assertFalse(categoriesPage.isAddCategoryButtonDisplayed(),
+                "Add Category button should be hidden for Test User.");
+    }
+
     @After("@M2-UI-01 or @M2-UI-02")
     public void tearDownAPI() {
         if (createdCategoryName == null)

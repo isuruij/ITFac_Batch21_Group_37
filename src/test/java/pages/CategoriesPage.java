@@ -167,4 +167,17 @@ public class CategoriesPage {
     public void clickSearch() {
         searchBtn.click();
     }
+
+    public boolean isAddCategoryButtonDisplayed() {
+        try {
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
+            List<WebElement> userButtons = driver.findElements(By.xpath("//a[contains(@href, '/ui/categories/add')]"));
+            return !userButtons.isEmpty() && userButtons.get(0).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        } finally {
+            // Restore implicit wait (assuming default is 10)
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        }
+    }
 }

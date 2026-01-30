@@ -124,4 +124,15 @@ public class APISteps_214086K {
             throw new RuntimeException("Category ID for delete is null. Setup might have failed.");
         }
     }
+
+    @When("I send a POST request to create a category with missing name")
+    public void i_send_a_post_request_to_create_a_category_with_missing_name() {
+        Map<String, String> body = new HashMap<>();
+        body.put("name", ""); // Emulating missing/empty name
+        // Or simply do not put "name" in the map if the API expects missing field
+        // rather than empty string.
+        // Based on CSV "name = ''", implies empty string.
+
+        response = APIUtils.post("/api/categories", body, authToken);
+    }
 }

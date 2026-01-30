@@ -24,3 +24,9 @@ Feature: API Tests (214086K)
     When I send a POST request to create a category with name "A"
     Then The response status code should be 400
 
+  @M2-API-05 @API
+  Scenario: Creating category with missing name
+    Given Valid Admin token available
+    When I send a POST request to create a category with missing name
+    Then The response status code should be 400
+

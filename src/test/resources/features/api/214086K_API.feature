@@ -18,3 +18,9 @@ Feature: API Tests (214086K)
     When I send a DELETE request to delete the category "Herbs"
     Then The response status code should be 204
 
+  @M2-API-04 @API
+  Scenario: Creating category with less than 3 letters for name
+    Given Valid Admin token available
+    When I send a POST request to create a category with name "A"
+    Then The response status code should be 400
+

@@ -19,6 +19,10 @@ public class APISteps_214086K {
 
     @Given("Valid Admin token available")
     public void valid_admin_token_available() {
+        loginAsAdmin();
+    }
+
+    private void loginAsAdmin() {
         Map<String, String> credentials = new HashMap<>();
         credentials.put("username", "admin");
         credentials.put("password", "admin123");
@@ -53,4 +57,41 @@ public class APISteps_214086K {
         }
     }
 
+    private Integer categoryIdForEdit;
+
+    @io.cucumber.java.Before("@M2-API-02")
+    public void setupForEdit() {
+        // Login to get token for setup
+        loginAsAdmin();
+
+        // Create "office" category
+        Map<String, String> body = new HashMap<>();
+        body.put("name", "office");
+        Response createResponse = APIUtils.post("/api/categories", body, authToken);
+        if (createResponse.getStatusCode() == 201) {
+            categoryIdForEdit = createResponse.jsonPath().getInt("id");
+            System.out.println("Setup: Created category 'office' with ID: " + categoryIdForEdit);
+        } else {
+            System.out.println("Setup failed: Could not create 'office' category.");
+        }
+    }
+
+    @When("I send a PUT request to update the category to {string}")
+    public void i_send_a_put_request_to_update_the_category_to(String newName) {
+        if (categoryIdForEdit != null) {
+            Map<String, String> body = new HashMap<>();
+            body.put("name", newName);
+            response = APIUtils.put("/api/categories/" + categoryIdForEdit, body, authToken);
+        } else {
+            throw new RuntimeException("Category ID for edit is null. Setup might have failed.");
+        }
+    }
+
+    @After("@M2-API-02")
+    public void tearDownEdit() {
+        if (categoryIdForEdit != null) {
+            APIUtils.delete("/api/categories/" + categoryIdForEdit, authToken);
+            System.out.println("Cleanup: Deleted category with ID: " + categoryIdForEdit);
+        }
+    }
 }

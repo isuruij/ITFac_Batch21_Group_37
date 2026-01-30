@@ -113,4 +113,14 @@ public class UISteps_214011E {
     public void the_plant_list_is_displayed() {
         Assert.assertTrue(plantsPage.arePlantsDisplayed(), "The plants list is not displayed or is empty.");
     }
+
+    @Then("Low stock badge is displayed for plant {string}")
+    public void low_stock_badge_is_displayed_for_plant(String plantName) {
+        Assert.assertTrue(plantsPage.isLowStockBadgeVisible(plantName), "Low stock badge expected for plant " + plantName + " but not found.");
+    }
+
+    @Then("Low stock badge is not displayed for plant {string}")
+    public void low_stock_badge_is_not_displayed_for_plant(String plantName) {
+        Assert.assertFalse(plantsPage.isLowStockBadgeVisible(plantName), "Low stock badge NOT expected for plant " + plantName + " but found.");
+    }
 }

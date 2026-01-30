@@ -90,6 +90,18 @@ public class PlantsPage {
         }
     }
 
+    public boolean isLowStockBadgeVisible(String plantName) {
+        // Find row by plant name, then look for badge inside.
+        // Assuming badge has class 'badge' or text 'Low'
+        try {
+            WebElement row = driver.findElement(By.xpath("//tr[td[contains(text(), '" + plantName + "')]]"));
+            List<WebElement> badges = row.findElements(By.xpath(".//span[contains(@class, 'badge') and contains(text(), 'Low')] | .//span[contains(text(), 'Low')]"));
+            return !badges.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public boolean isPlantInList(String plantName) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 

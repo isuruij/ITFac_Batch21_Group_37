@@ -72,3 +72,28 @@ Feature: Verify Admin UI Feature
         Then Plant "Tulip" is added to the list
         When Click delete icon on plant "Tulip"
         Then Plant "Tulip" is removed from the list
+
+    
+    @M3-UI-10
+    Scenario: Verify Low Stock Badge
+        When Navigate to Plant tab
+        And Click 'Add a Plant' button
+        And Fill a plant name "LowStockPlant"
+        And Select category "Indoor"
+        And Set price "100"
+        And Set quantity "4"
+        And Click 'Save' button
+        Then Plant "LowStockPlant" is added to the list
+        And Low stock badge is displayed for plant "LowStockPlant"
+        When Click delete icon on plant "LowStockPlant"
+        Then Plant "LowStockPlant" is removed from the list
+        When Click 'Add a Plant' button
+        And Fill a plant name "NormalStockPlant"
+        And Select category "Indoor"
+        And Set price "100"
+        And Set quantity "5"
+        And Click 'Save' button
+        Then Plant "NormalStockPlant" is added to the list
+        And Low stock badge is not displayed for plant "NormalStockPlant"
+        When Click delete icon on plant "NormalStockPlant"
+        Then Plant "NormalStockPlant" is removed from the list

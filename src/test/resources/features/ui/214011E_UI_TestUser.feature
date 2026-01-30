@@ -23,3 +23,5 @@ Feature: Verify Test User UI Feature
     Scenario: Verify Plant List Access for Test User
         When Navigate to Plant tab
         Then The plant list is displayed
+
+    

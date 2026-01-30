@@ -30,3 +30,9 @@ Feature: API Tests (214086K)
     When I send a POST request to create a category with missing name
     Then The response status code should be 400
 
+  @M2-API-06 @API
+  Scenario: get all sub categories as Test User
+    Given Valid User token available
+    When I send a GET request to "/api/categories/sub-categories"
+    Then The response status code should be 200
+

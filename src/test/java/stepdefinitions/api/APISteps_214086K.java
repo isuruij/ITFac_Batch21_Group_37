@@ -135,4 +135,24 @@ public class APISteps_214086K {
 
         response = APIUtils.post("/api/categories", body, authToken);
     }
+
+    @Given("Valid User token available")
+    public void valid_user_token_available() {
+        loginAsUser();
+    }
+
+    private void loginAsUser() {
+        Map<String, String> credentials = new HashMap<>();
+        credentials.put("username", "testuser");
+        credentials.put("password", "test123");
+
+        Response loginResponse = APIUtils.post("/api/auth/login", credentials, null);
+        Assert.assertEquals(loginResponse.getStatusCode(), 200, "Login failed");
+        authToken = loginResponse.jsonPath().getString("token");
+    }
+
+    @When("I send a GET request to {string}")
+    public void i_send_a_get_request_to(String endpoint) {
+        response = APIUtils.get(endpoint, authToken);
+    }
 }

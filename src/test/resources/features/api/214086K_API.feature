@@ -36,3 +36,9 @@ Feature: API Tests (214086K)
     When I send a GET request to "/api/categories/sub-categories"
     Then The response status code should be 200
 
+  @M2-API-07 @API
+  Scenario: Get specific category by ID for Test User
+    Given Valid User token available
+    When I send a GET request to fetch category with name "apicat"
+    Then The response status code should be 200
+

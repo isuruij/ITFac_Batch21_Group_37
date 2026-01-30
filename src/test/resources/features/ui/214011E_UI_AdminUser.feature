@@ -73,7 +73,6 @@ Feature: Verify Admin UI Feature
         When Click delete icon on plant "Tulip"
         Then Plant "Tulip" is removed from the list
 
-    
     @M3-UI-10
     Scenario: Verify Low Stock Badge
         When Navigate to Plant tab

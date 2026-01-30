@@ -34,4 +34,33 @@ public class APIUtils {
 
         return request.when().get(endpoint);
     }
+
+    public static Response put(String endpoint, Object body, String token) {
+        RequestSpecification request = RestAssured.given()
+                .baseUri(ConfigReader.getProperty("api.url"))
+                .contentType(ContentType.JSON);
+
+        if (token != null && !token.isEmpty()) {
+            request.header("Authorization", "Bearer " + token);
+        }
+
+        if (body != null) {
+            request.body(body);
+        }
+
+        return request.when().put(endpoint);
+    }
+
+    public static Response delete(String endpoint, String token) {
+        RequestSpecification request = RestAssured.given()
+                .baseUri(ConfigReader.getProperty("api.url"))
+                .contentType(ContentType.JSON);
+
+        if (token != null && !token.isEmpty()) {
+            request.header("Authorization", "Bearer " + token);
+        }
+
+        return request.when().delete(endpoint);
+    }
+
 }

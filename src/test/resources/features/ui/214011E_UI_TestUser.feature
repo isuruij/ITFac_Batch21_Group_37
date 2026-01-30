@@ -18,3 +18,8 @@ Feature: Verify Test User UI Feature
     Scenario: Verify Delete Plant Hidden for Test User
         When Navigate to Plant tab
         Then Delete icon is not displayed for any plant
+
+    @M3-UI-09
+    Scenario: Verify Plant List Access for Test User
+        When Navigate to Plant tab
+        Then The plant list is displayed

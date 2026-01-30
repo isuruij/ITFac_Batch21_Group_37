@@ -81,6 +81,15 @@ public class PlantsPage {
         }
     }
 
+    public boolean arePlantsDisplayed() {
+        try {
+            List<WebElement> plants = driver.findElements(plantRowsLocator);
+            return !plants.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public boolean isPlantInList(String plantName) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 

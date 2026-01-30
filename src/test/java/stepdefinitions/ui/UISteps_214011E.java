@@ -108,4 +108,9 @@ public class UISteps_214011E {
     public void delete_icon_is_not_displayed_for_any_plant() {
         Assert.assertFalse(plantsPage.areAnyDeleteButtonsVisible(), "Delete buttons were found on the page but should be hidden for Test User.");
     }
+
+    @Then("The plant list is displayed")
+    public void the_plant_list_is_displayed() {
+        Assert.assertTrue(plantsPage.arePlantsDisplayed(), "The plants list is not displayed or is empty.");
+    }
 }

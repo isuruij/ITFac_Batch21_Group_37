@@ -47,3 +47,9 @@ Feature: API Tests (214086K)
     Given Valid User token available
     When I send a POST request to create a category with name "testcat"
     Then The response status code should be 403
+
+  @M2-API-09 @API
+  Scenario: Test User Updating a Category
+    Given Valid User token available
+    When I send a PUT request to update the category "apicat"
+    Then The response status code should be 403

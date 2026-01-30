@@ -215,4 +215,47 @@ public class APISteps_214086K {
             System.out.println("Cleanup: Deleted category with ID: " + categoryIdForGet);
         }
     }
+
+    private Integer categoryIdForUpdateByUser;
+
+    @io.cucumber.java.Before("@M2-API-09")
+    public void setupForUpdateByUser() {
+        loginAsAdmin();
+        String adminToken = authToken;
+
+        // Create "apicat" category
+        Map<String, String> body = new HashMap<>();
+        body.put("name", "apicat");
+        Response createResponse = APIUtils.post("/api/categories", body, adminToken);
+        if (createResponse.getStatusCode() == 201) {
+            categoryIdForUpdateByUser = createResponse.jsonPath().getInt("id");
+            System.out.println("Setup: Created category 'apicat' with ID: " + categoryIdForUpdateByUser);
+        } else {
+            System.out.println("Setup failed: Could not create 'apicat' category.");
+        }
+    }
+
+    @When("I send a PUT request to update the category {string}")
+    public void i_send_a_put_request_to_update_the_category(String categoryName) {
+        if (categoryIdForUpdateByUser != null) {
+            Map<String, String> body = new HashMap<>();
+            body.put("name", categoryName + "_Updated"); // Just changing the name payload
+
+            // Using authToken which should be User token from Given step
+            response = APIUtils.put("/api/categories/" + categoryIdForUpdateByUser, body, authToken);
+        } else {
+            throw new RuntimeException("Category ID for Update is null. Setup might have failed.");
+        }
+    }
+
+    @After("@M2-API-09")
+    public void tearDownUpdateByUser() {
+        if (categoryIdForUpdateByUser != null) {
+            loginAsAdmin();
+            String adminToken = authToken;
+
+            APIUtils.delete("/api/categories/" + categoryIdForUpdateByUser, adminToken);
+            System.out.println("Cleanup: Deleted category with ID: " + categoryIdForUpdateByUser);
+        }
+    }
 }

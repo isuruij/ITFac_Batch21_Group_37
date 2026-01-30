@@ -116,10 +116,15 @@ public class APISteps_214086K {
 
     @When("I send a DELETE request to delete the category {string}")
     public void i_send_a_delete_request_to_delete_the_category(String categoryName) {
+        Integer idToDelete = null;
         if (categoryIdForDelete != null) {
-            // Ideally we should verify the name matches, but for this structured test, we
-            // proceed with the ID.
-            response = APIUtils.delete("/api/categories/" + categoryIdForDelete, authToken);
+            idToDelete = categoryIdForDelete;
+        } else if (categoryIdForDeleteByUser != null) {
+            idToDelete = categoryIdForDeleteByUser;
+        }
+
+        if (idToDelete != null) {
+            response = APIUtils.delete("/api/categories/" + idToDelete, authToken);
         } else {
             throw new RuntimeException("Category ID for delete is null. Setup might have failed.");
         }
@@ -256,6 +261,37 @@ public class APISteps_214086K {
 
             APIUtils.delete("/api/categories/" + categoryIdForUpdateByUser, adminToken);
             System.out.println("Cleanup: Deleted category with ID: " + categoryIdForUpdateByUser);
+        }
+    }
+
+    private Integer categoryIdForDeleteByUser;
+
+    @io.cucumber.java.Before("@M2-API-10")
+    public void setupForDeleteByUser() {
+        loginAsAdmin();
+        String adminToken = authToken;
+
+        // Create "apicat" category
+        Map<String, String> body = new HashMap<>();
+        body.put("name", "apicat");
+        Response createResponse = APIUtils.post("/api/categories", body, adminToken);
+        if (createResponse.getStatusCode() == 201) {
+            categoryIdForDeleteByUser = createResponse.jsonPath().getInt("id");
+            System.out.println("Setup: Created category 'apicat' with ID: " + categoryIdForDeleteByUser);
+        } else {
+            System.out.println("Setup failed: Could not create 'apicat' category.");
+        }
+    }
+
+    @After("@M2-API-10")
+    public void tearDownDeleteByUser() {
+        if (categoryIdForDeleteByUser != null) {
+            loginAsAdmin();
+            String adminToken = authToken;
+
+            // Test user should fail to delete, so it should still exist. We must cleanup.
+            APIUtils.delete("/api/categories/" + categoryIdForDeleteByUser, adminToken);
+            System.out.println("Cleanup: Deleted category with ID: " + categoryIdForDeleteByUser);
         }
     }
 }

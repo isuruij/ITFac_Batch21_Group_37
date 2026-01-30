@@ -53,3 +53,9 @@ Feature: API Tests (214086K)
     Given Valid User token available
     When I send a PUT request to update the category "apicat"
     Then The response status code should be 403
+
+  @M2-API-10 @API
+  Scenario: Test User Deleting a Category
+    Given Valid User token available
+    When I send a DELETE request to delete the category "apicat"
+    Then The response status code should be 403

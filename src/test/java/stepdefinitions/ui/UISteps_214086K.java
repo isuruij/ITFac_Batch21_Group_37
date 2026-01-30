@@ -68,11 +68,6 @@ public class UISteps_214086K {
     @Then("Verify {string} error message is displayed")
     public void verify_error_message_is_displayed(String expectedError) {
         String actualError = categoriesPage.getInvalidFeedbackText();
-        // Normalize whitespace (replace newlines/br with space if needed, or check
-        // contains)
-        // User provided HTML has <br>, get text likely returns key value with newline
-        // or space.
-        // We will do a generic check.
         Assert.assertTrue(actualError.replace("\n", " ").contains(expectedError),
                 "Expected error '" + expectedError + "' not found in actual: '" + actualError + "'");
     }

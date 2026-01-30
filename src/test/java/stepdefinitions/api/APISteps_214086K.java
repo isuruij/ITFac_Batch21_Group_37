@@ -134,10 +134,6 @@ public class APISteps_214086K {
     public void i_send_a_post_request_to_create_a_category_with_missing_name() {
         Map<String, String> body = new HashMap<>();
         body.put("name", ""); // Emulating missing/empty name
-        // Or simply do not put "name" in the map if the API expects missing field
-        // rather than empty string.
-        // Based on CSV "name = ''", implies empty string.
-
         response = APIUtils.post("/api/categories", body, authToken);
     }
 
@@ -165,19 +161,9 @@ public class APISteps_214086K {
 
     @io.cucumber.java.Before("@M2-API-07")
     public void setupForGet() {
-        // We need admin token to create category.
-        // We can reuse loginAsAdmin() but we need to capture the token separately if we
-        // want to avoid overwriting 'authToken'
-        // which might be used by the test user later.
-        // HOWEVER, loginAsAdmin() sets the instance variable 'authToken'.
-        // For @M2-API-07, the scenario steps call "Given Valid User token available"
-        // which sets 'authToken' to user token.
-        // Build setup runs BEFORE steps. So we can use 'authToken' as admin token here,
-        // create category,
-        // and then the scenario step will overwrite 'authToken' with user token.
 
         loginAsAdmin();
-        String adminToken = authToken; // Capture it if we needed to persist, but we use it immediately.
+        String adminToken = authToken;
 
         // Create "apicat" category
         Map<String, String> body = new HashMap<>();
@@ -194,13 +180,6 @@ public class APISteps_214086K {
     @When("I send a GET request to fetch category with name {string}")
     public void i_send_a_get_request_to_fetch_category_with_name(String categoryName) {
         if (categoryIdForGet != null) {
-            // Ensure we are using the user token (authToken) set by "Valid User token
-            // available"
-            // The setupForGet() runs before the scenario, setting auth token to admin
-            // temporarily.
-            // But the scenario Step "Given Valid User token available" runs AFTER setup,
-            // overwriting 'authToken' with user token.
-            // So here 'authToken' IS the user token.
             response = APIUtils.get("/api/categories/" + categoryIdForGet, authToken);
         } else {
             throw new RuntimeException("Category ID for GET is null. Setup might have failed.");
@@ -210,9 +189,6 @@ public class APISteps_214086K {
     @After("@M2-API-07")
     public void tearDownGet() {
         if (categoryIdForGet != null) {
-            // We need admin token to delete category.
-            // valid_user_token_available() would have set authToken to user token.
-            // So we must login as admin again.
             loginAsAdmin();
             String adminToken = authToken;
 

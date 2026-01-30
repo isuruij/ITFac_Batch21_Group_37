@@ -72,6 +72,15 @@ public class PlantsPage {
         }
     }
 
+    public boolean areAnyDeleteButtonsVisible() {
+        try {
+            List<WebElement> deleteButtons = driver.findElements(By.xpath("//button[@title='delete']"));
+            return !deleteButtons.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public boolean isPlantInList(String plantName) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
@@ -113,7 +122,8 @@ public class PlantsPage {
     public void clickDeletePlant(String plantName) {
         // Find TR containing plantName, then find delete button
         // Common patterns: button with class 'delete', 'danger', or containing 'Delete' text or trash icon
-        WebElement deleteBtn = driver.findElement(By.xpath("//tr[td[contains(text(), '" + plantName + "')]]//button[contains(@class, 'delete') or contains(@class, 'danger')] | //tr[td[contains(text(), '" + plantName + "')]]//a[contains(@href, 'delete')]"));
+        WebElement deleteBtn = driver.findElement(By.xpath("//tr[td[contains(text(), '" + plantName + "')]]//button[@title='Delete']"));
+        // List<WebElement> deleteButtons = driver.findElements(By.xpath("//button[@title='delete']"));
         deleteBtn.click();
         
         // Handle potential alert

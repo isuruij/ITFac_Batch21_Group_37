@@ -1,6 +1,7 @@
 package stepdefinitions.api;
 
 import io.cucumber.java.en.Given;
+import io.cucumber.java.After;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
@@ -41,7 +42,7 @@ public class APISteps_214086K {
         Assert.assertEquals(response.getStatusCode(), statusCode, "Unexpected status code");
     }
 
-    @io.cucumber.java.After("@M2-API-01")
+    @After("@M2-API-01")
     public void tearDown() {
         if (response != null && response.getStatusCode() == 201) {
             Integer categoryId = response.jsonPath().getInt("id");

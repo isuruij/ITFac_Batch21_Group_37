@@ -94,4 +94,34 @@ public class APISteps_214086K {
             System.out.println("Cleanup: Deleted category with ID: " + categoryIdForEdit);
         }
     }
+
+    private Integer categoryIdForDelete;
+
+    @io.cucumber.java.Before("@M2-API-03")
+    public void setupForDelete() {
+        // Login to get token for setup
+        loginAsAdmin();
+
+        // Create "Herbs" category
+        Map<String, String> body = new HashMap<>();
+        body.put("name", "Herbs");
+        Response createResponse = APIUtils.post("/api/categories", body, authToken);
+        if (createResponse.getStatusCode() == 201) {
+            categoryIdForDelete = createResponse.jsonPath().getInt("id");
+            System.out.println("Setup: Created category 'Herbs' with ID: " + categoryIdForDelete);
+        } else {
+            System.out.println("Setup failed: Could not create 'Herbs' category.");
+        }
+    }
+
+    @When("I send a DELETE request to delete the category {string}")
+    public void i_send_a_delete_request_to_delete_the_category(String categoryName) {
+        if (categoryIdForDelete != null) {
+            // Ideally we should verify the name matches, but for this structured test, we
+            // proceed with the ID.
+            response = APIUtils.delete("/api/categories/" + categoryIdForDelete, authToken);
+        } else {
+            throw new RuntimeException("Category ID for delete is null. Setup might have failed.");
+        }
+    }
 }

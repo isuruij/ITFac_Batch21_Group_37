@@ -12,3 +12,9 @@ Feature: API Tests (214086K)
     When I send a PUT request to update the category to "officenew"
     Then The response status code should be 200
 
+  @M2-API-03 @API
+  Scenario: Delete category as Admin
+    Given Valid Admin token available
+    When I send a DELETE request to delete the category "Herbs"
+    Then The response status code should be 204
+

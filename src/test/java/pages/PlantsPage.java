@@ -63,6 +63,15 @@ public class PlantsPage {
         }
     }
 
+    public boolean areAnyEditButtonsVisible() {
+        try {
+            List<WebElement> editButtons = driver.findElements(By.xpath("//a[contains(@href, 'edit')] | //button[contains(@class, 'edit')] | //i[contains(@class, 'edit')]"));
+            return !editButtons.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public boolean isPlantInList(String plantName) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 

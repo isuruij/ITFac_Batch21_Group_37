@@ -98,4 +98,9 @@ public class UISteps_214011E {
     public void add_a_plant_button_is_not_displayed() {
         Assert.assertFalse(plantsPage.isAddPlantButtonVisible(), "'Add a Plant' button is displayed but should be hidden for Test User.");
     }
+
+    @Then("Edit icon is not displayed for any plant")
+    public void edit_icon_is_not_displayed_for_any_plant() {
+        Assert.assertFalse(plantsPage.areAnyEditButtonsVisible(), "Edit buttons were found on the page but should be hidden for Test User.");
+    }
 }

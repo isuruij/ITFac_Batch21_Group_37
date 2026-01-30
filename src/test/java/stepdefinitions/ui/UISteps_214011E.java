@@ -1,16 +1,20 @@
 package stepdefinitions.ui;
 
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.testng.Assert;
 import pages.AddPlantPage;
+import pages.LoginPage;
 import pages.PlantsPage;
+import utils.ConfigReader;
 import utils.DriverFactory;
 
 public class UISteps_214011E {
 
     PlantsPage plantsPage = new PlantsPage(DriverFactory.getDriver());
     AddPlantPage addPlantPage = new AddPlantPage(DriverFactory.getDriver());
+    LoginPage loginPage = new LoginPage(DriverFactory.getDriver());
 
     @When("Navigate to Plant tab")
     public void navigate_to_plant_tab() {
@@ -81,5 +85,17 @@ public class UISteps_214011E {
         plantsPage.enterPlantName(plantName);
         plantsPage.clickSearch();
         Assert.assertFalse(plantsPage.isPlantInList(plantName), "Plant " + plantName + " was found in the list but should have been removed.");
+    }
+
+    @Given("Test User is logged into the system")
+    public void test_user_is_logged_into_the_system() {
+        DriverFactory.getDriver().get(ConfigReader.getProperty("url") + "/ui/login");
+        // Assuming test user credentials. Can be updated if different.
+        loginPage.login("testuser", "test123");
+    }
+
+    @Then("'Add a Plant' button is not displayed")
+    public void add_a_plant_button_is_not_displayed() {
+        Assert.assertFalse(plantsPage.isAddPlantButtonVisible(), "'Add a Plant' button is displayed but should be hidden for Test User.");
     }
 }

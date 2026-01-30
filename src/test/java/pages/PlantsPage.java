@@ -55,6 +55,14 @@ public class PlantsPage {
         addPlantBtn.click();
     }
 
+    public boolean isAddPlantButtonVisible() {
+        try {
+            return addPlantBtn.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public boolean isPlantInList(String plantName) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 

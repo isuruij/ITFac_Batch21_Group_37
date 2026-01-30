@@ -42,3 +42,8 @@ Feature: API Tests (214086K)
     When I send a GET request to fetch category with name "apicat"
     Then The response status code should be 200
 
+  @M2-API-08 @API
+  Scenario: Test User Creating a Category
+    Given Valid User token available
+    When I send a POST request to create a category with name "testcat"
+    Then The response status code should be 403

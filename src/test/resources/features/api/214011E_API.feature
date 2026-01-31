@@ -24,3 +24,9 @@ Feature: Verify Admin API Features
         Then Receive status code 201
         When Admin deletes the plant
         Then Receive status code 204
+
+    @M3-API-04
+    Scenario: Verify that Admin cannot create plants with negative price
+        Given Valid Admin token
+        When Admin create a plant with name "Orchid" price "-5.0" quantity "10" in category "4"
+        Then Receive status code 400

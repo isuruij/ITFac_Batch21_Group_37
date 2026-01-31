@@ -70,9 +70,22 @@ public class APISteps_214011E {
         body.put("price", Double.parseDouble(price));
         body.put("quantity", Integer.parseInt(quantity));
         body.put("categoryId", Integer.parseInt(categoryId));
-        // Some APIs might take category object or just ID based on endpoint. 
-        // Prompt said: POST /api/plants/category/{categoryId}
-        // So body likely just needs plant details.
+        
+        String endpoint = "/api/plants/category/" + categoryId;
+        response = APIUtils.post(endpoint, body, authToken);
+        
+        if (response.getStatusCode() == 201) {
+            plantId = response.jsonPath().getInt("id");
+        }
+    }
+
+    @When("Test User create a plant with name {string} price {string} quantity {string} in category {string}")
+    public void testUser_create_a_plant(String name, String price, String quantity, String categoryId) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("name", name);
+        body.put("price", Double.parseDouble(price));
+        body.put("quantity", Integer.parseInt(quantity));
+        body.put("categoryId", Integer.parseInt(categoryId));
         
         String endpoint = "/api/plants/category/" + categoryId;
         response = APIUtils.post(endpoint, body, authToken);
@@ -97,8 +110,29 @@ public class APISteps_214011E {
         response = APIUtils.put(endpoint, body, authToken);
     }
 
+    @When("Test User updates the plant with name {string} price {string} quantity {string} in category {string}")
+    public void testUser_updates_the_plant_with_name_price(String name, String price, String quantity, String categoryId) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("name", name);
+        body.put("price", Double.parseDouble(price));
+        body.put("quantity", Integer.parseInt(quantity));
+        body.put("categoryId", Integer.parseInt(categoryId));
+        // Assuming partial update or minimum fields needed. 
+        // If API requires full object, we might need to store previous values. 
+        // But for this test let's try sending just updated fields or minimal set.
+        
+        String endpoint = "/api/plants/" + plantId;
+        response = APIUtils.put(endpoint, body, authToken);
+    }
+
     @When("Admin deletes the plant")
     public void admin_deletes_the_plant() {
+        String endpoint = "/api/plants/" + plantId;
+        response = APIUtils.delete(endpoint, authToken);
+    }
+
+    @When("Test User deletes the plant")
+    public void testUser_deletes_the_plant() {
         String endpoint = "/api/plants/" + plantId;
         response = APIUtils.delete(endpoint, authToken);
     }

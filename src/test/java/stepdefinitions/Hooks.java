@@ -23,7 +23,7 @@ public class Hooks {
         DriverFactory.quitDriver();
     }
 
-    @After("@M3-UI-01 or @M3-UI-02 or @M3-UI-03 or @M3-UI-04 or @M3-API-01 or @M3-API-02")
+    @After("@M3-UI-01 or @M3-UI-02 or @M3-UI-03 or @M3-UI-04 or @M3-API-01 or @M3-API-02 or @M3-API-07")
     public void tearDownAndCleanup() {
         // 1. Login to get token
         java.util.Map<String, String> credentials = new java.util.HashMap<>();

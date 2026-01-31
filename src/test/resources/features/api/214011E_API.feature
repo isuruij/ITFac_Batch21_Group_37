@@ -30,3 +30,9 @@ Feature: Verify Admin API Features
         Given Valid Admin token
         When Admin create a plant with name "Orchid" price "-5.0" quantity "10" in category "4"
         Then Receive status code 400
+
+    @M3-API-05
+    Scenario: Verify that Admin cannot create plants with missing name
+        Given Valid Admin token
+        When Admin create a plant with name "" price "100.0" quantity "10" in category "4"
+        Then Receive status code 400

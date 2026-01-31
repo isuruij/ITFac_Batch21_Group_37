@@ -37,6 +37,24 @@ public class APISteps_214011E {
         Assert.assertNotNull(authToken, "Token is null");
     }
 
+    @Given("Valid Test User token")
+    public void valid_test_user_token() {
+        Map<String, String> credentials = new HashMap<>();
+        credentials.put("username", "testuser");
+        credentials.put("password", "test123"); 
+        
+        Response loginResponse = APIUtils.post("/api/auth/login", credentials, null);
+
+
+        Assert.assertEquals(loginResponse.getStatusCode(), 200, "Login failed for Test User");
+        
+        authToken = loginResponse.jsonPath().getString("token");
+        if(authToken == null) {
+             authToken = loginResponse.jsonPath().getString("accessToken");
+        }
+        Assert.assertNotNull(authToken, "Token is null");
+    }
+
 
     @Then("Receive status code {int}")
     public void receive_status_code(int expectedStatusCode) {

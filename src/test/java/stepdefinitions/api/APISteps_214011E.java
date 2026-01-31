@@ -14,7 +14,6 @@ public class APISteps_214011E {
 
     private String authToken;
     private Response response;
-
     private int plantId;
 
     @Given("Valid Admin token")
@@ -78,6 +77,12 @@ public class APISteps_214011E {
         
         String endpoint = "/api/plants/" + plantId;
         response = APIUtils.put(endpoint, body, authToken);
+    }
+
+    @When("Admin deletes the plant")
+    public void admin_deletes_the_plant() {
+        String endpoint = "/api/plants/" + plantId;
+        response = APIUtils.delete(endpoint, authToken);
     }
 
     @Then("The response should contain the plant name {string}")

@@ -87,8 +87,8 @@ public class UISteps_214011E {
         Assert.assertFalse(plantsPage.isPlantInList(plantName), "Plant " + plantName + " was found in the list but should have been removed.");
     }
 
-    @Given("Test User is logged into the system")
-    public void test_user_is_logged_into_the_system() {
+    @Given("Test User logged into the system")
+    public void test_user_logged_into_the_system() {
         DriverFactory.getDriver().get(ConfigReader.getProperty("url") + "/ui/login");
         // Assuming test user credentials. Can be updated if different.
         loginPage.login("testuser", "test123");

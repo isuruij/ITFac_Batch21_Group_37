@@ -15,6 +15,7 @@ public class APISteps_214011E {
     private String authToken;
     private Response response;
 
+    private int plantId;
 
     @Given("Valid Admin token")
     public void valid_admin_token() {
@@ -37,11 +38,13 @@ public class APISteps_214011E {
         Assert.assertNotNull(authToken, "Token is null");
     }
 
+
     @Then("Receive status code {int}")
     public void receive_status_code(int expectedStatusCode) {
         Assert.assertNotNull(response, "Response is null");
         Assert.assertEquals(response.getStatusCode(), expectedStatusCode, "Status code mismatch");
     }
+
 
     @When("Admin create a plant with name {string} price {string} quantity {string} in category {string}")
     public void admin_create_a_plant(String name, String price, String quantity, String categoryId) {
@@ -56,6 +59,25 @@ public class APISteps_214011E {
         
         String endpoint = "/api/plants/category/" + categoryId;
         response = APIUtils.post(endpoint, body, authToken);
+        
+        if (response.getStatusCode() == 201) {
+            plantId = response.jsonPath().getInt("id");
+        }
+    }
+
+    @When("Admin updates the plant with name {string} price {string} quantity {string} in category {string}")
+    public void admin_updates_the_plant_with_name_price(String name, String price, String quantity, String categoryId) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("name", name);
+        body.put("price", Double.parseDouble(price));
+        body.put("quantity", Integer.parseInt(quantity));
+        body.put("categoryId", Integer.parseInt(categoryId));
+        // Assuming partial update or minimum fields needed. 
+        // If API requires full object, we might need to store previous values. 
+        // But for this test let's try sending just updated fields or minimal set.
+        
+        String endpoint = "/api/plants/" + plantId;
+        response = APIUtils.put(endpoint, body, authToken);
     }
 
     @Then("The response should contain the plant name {string}")

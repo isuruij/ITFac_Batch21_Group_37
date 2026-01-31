@@ -1,0 +1,9 @@
+@API
+Feature: Verify Admin API Features
+
+    @M3-API-01
+    Scenario: Verify that Admin can create plants via API
+        Given Valid Admin token
+        When Admin create a plant with name "Orchid" price "800.0" quantity "15" in category "4"
+        Then Receive status code 201
+        And The response should contain the plant name "Orchid"

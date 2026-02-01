@@ -137,6 +137,12 @@ public class APISteps_214011E {
         response = APIUtils.get(endpoint, authToken);
     }
 
+    @When("Test User requests all plants")
+    public void test_user_requests_all_plants() {
+        String endpoint = "/api/plants";
+        response = APIUtils.get(endpoint, authToken);
+    }
+
     @Then("The response should contain the plant name {string}")
     public void the_response_should_contain_the_plant_name(String expectedName) {
         String actualName = response.jsonPath().getString("name");

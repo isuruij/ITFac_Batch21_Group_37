@@ -37,3 +37,9 @@ Feature: Verify Admin API Features
         When Test User requests the plant with name "Orchid"
         Then Receive status code 200
         And The response should contain the plant name "Orchid"
+
+    @M3-API-10
+    Scenario: Verify that Test users can get a detail of all plants with API
+        Given Valid Test User token
+        When Test User requests all plants
+        Then Receive status code 200

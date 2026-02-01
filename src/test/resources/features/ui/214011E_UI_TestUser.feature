@@ -2,7 +2,7 @@
 Feature: Verify Test User UI Feature
 
     Background:
-        Given Test User is logged into the system
+        Given Test User logged into the system
 
     @M3-UI-06
     Scenario: Verify Add Plant Hidden for Test User

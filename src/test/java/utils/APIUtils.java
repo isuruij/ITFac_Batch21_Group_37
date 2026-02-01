@@ -62,5 +62,4 @@ public class APIUtils {
 
         return request.when().delete(endpoint);
     }
-
 }

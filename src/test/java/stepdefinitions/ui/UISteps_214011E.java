@@ -21,9 +21,14 @@ public class UISteps_214011E {
         plantsPage.clickPlantsTab();
     }
 
+    @When("Click 'Add Plant' button")
+    public void click_add_plant_button() {
+        plantsPage.clickAddPlant();
+    }
+
     @When("Click 'Add a Plant' button")
     public void click_add_a_plant_button() {
-        plantsPage.clickAddPlant();
+        plantsPage.clickAddaPlant();
     }
 
     @When("Fill a plant name {string}")

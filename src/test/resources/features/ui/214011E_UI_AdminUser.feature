@@ -7,7 +7,7 @@ Feature: Verify Admin UI Feature
     @M3-UI-01
     Scenario: Verify that Admin can add plants
         When Navigate to Plant tab
-        And Click 'Add a Plant' button
+        And Click 'Add Plant' button
         And Fill a plant name "Rose"
         And Select category "Indoor"
         And Set price "1500"

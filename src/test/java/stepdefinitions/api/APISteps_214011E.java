@@ -96,30 +96,24 @@ public class APISteps_214011E {
     }
 
     @When("Admin updates the plant with name {string} price {string} quantity {string} in category {string}")
-    public void admin_updates_the_plant_with_name_price(String name, String price, String quantity, String categoryId) {
+    public void admin_updates_the_plant(String name, String price, String quantity, String categoryId) {
         Map<String, Object> body = new HashMap<>();
         body.put("name", name);
         body.put("price", Double.parseDouble(price));
         body.put("quantity", Integer.parseInt(quantity));
         body.put("categoryId", Integer.parseInt(categoryId));
-        // Assuming partial update or minimum fields needed. 
-        // If API requires full object, we might need to store previous values. 
-        // But for this test let's try sending just updated fields or minimal set.
         
         String endpoint = "/api/plants/" + plantId;
         response = APIUtils.put(endpoint, body, authToken);
     }
 
     @When("Test User updates the plant with name {string} price {string} quantity {string} in category {string}")
-    public void testUser_updates_the_plant_with_name_price(String name, String price, String quantity, String categoryId) {
+    public void testUser_updates_the_plant(String name, String price, String quantity, String categoryId) {
         Map<String, Object> body = new HashMap<>();
         body.put("name", name);
         body.put("price", Double.parseDouble(price));
         body.put("quantity", Integer.parseInt(quantity));
         body.put("categoryId", Integer.parseInt(categoryId));
-        // Assuming partial update or minimum fields needed. 
-        // If API requires full object, we might need to store previous values. 
-        // But for this test let's try sending just updated fields or minimal set.
         
         String endpoint = "/api/plants/" + plantId;
         response = APIUtils.put(endpoint, body, authToken);
@@ -135,6 +129,12 @@ public class APISteps_214011E {
     public void testUser_deletes_the_plant() {
         String endpoint = "/api/plants/" + plantId;
         response = APIUtils.delete(endpoint, authToken);
+    }
+    
+    @When("Test User requests the plant with name {string}")
+    public void test_user_requests_the_plant_with_name(String plantName) {
+        String endpoint = "/api/plants/" + plantId;
+        response = APIUtils.get(endpoint, authToken);
     }
 
     @Then("The response should contain the plant name {string}")

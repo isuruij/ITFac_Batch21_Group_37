@@ -27,3 +27,13 @@ Feature: Verify Admin API Features
         Given Valid Test User token
         When Test User deletes the plant
         Then Receive status code 403
+
+    @M3-API-09
+    Scenario: Verify that Test users can get a specific plant with API
+        Given Valid Admin token
+        When Admin create a plant with name "Orchid" price "100.0" quantity "10" in category "4"
+        Then Receive status code 201
+        Given Valid Test User token
+        When Test User requests the plant with name "Orchid"
+        Then Receive status code 200
+        And The response should contain the plant name "Orchid"

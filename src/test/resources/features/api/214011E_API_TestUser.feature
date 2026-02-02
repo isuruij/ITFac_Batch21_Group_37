@@ -1,5 +1,5 @@
 @API
-Feature: Verify Admin API Features
+Feature: Verify Test User API Features
 
     # Background:
         

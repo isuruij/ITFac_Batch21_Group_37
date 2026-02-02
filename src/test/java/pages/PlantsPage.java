@@ -48,11 +48,18 @@ public class PlantsPage {
         searchBtn.click();
     }
 
-    @FindBy(xpath = "//a[contains(@href, '/ui/plants/add')]")
+    @FindBy(xpath = "//a[contains(@href, '/ui/plants/add') and contains(text(), 'Add Plant')]")
     WebElement addPlantBtn;
+
+    @FindBy(xpath = "//a[contains(@href, '/ui/plants/add') and contains(text(), 'Add a Plant')]")
+    WebElement addaPlantBtn;
 
     public void clickAddPlant() {
         addPlantBtn.click();
+    }
+
+    public void clickAddaPlant() {
+        addaPlantBtn.click();
     }
 
     public boolean isAddPlantButtonVisible() {

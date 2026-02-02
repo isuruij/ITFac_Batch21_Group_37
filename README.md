@@ -1,6 +1,6 @@
 # ITFac_Batch21_Group37 Automation Framework (Team: Quality Nexus)
 
-This project implements a unified test automation framework using Cucumber, Selenium, and Rest Assured.
+This project implements a unified test automation framework using Cucumber, Selenium, and Rest Assured. Group 37
 
 ## Tech Stack
 - **UI Automation**: Selenium WebDriver

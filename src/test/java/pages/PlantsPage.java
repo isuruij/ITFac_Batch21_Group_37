@@ -26,6 +26,19 @@ public class PlantsPage {
 
     @FindBy(xpath = "//button[text()='Search']")
     WebElement searchBtn;
+    
+    // Add/Edit Form Elements
+    @FindBy(name = "name")
+    WebElement plantNameInput;
+    
+    @FindBy(tagName = "select")
+    WebElement categorySelect;
+    
+    @FindBy(xpath = "//a[text()='Cancel']")
+    WebElement cancelBtn;
+    
+    @FindBy(xpath = "//button[text()='Save']")
+    WebElement saveBtn;
 
     // Dynamic Locator
     By plantRowsLocator = By.xpath("//table[contains(@class, 'table')]//tbody//tr/td[1]");
@@ -34,14 +47,47 @@ public class PlantsPage {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
+    
+    public void selectPlantCategory(String categoryName) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOf(categorySelect));
+        
+        Select select = new Select(categorySelect);
+        try {
+            select.selectByVisibleText(categoryName);
+        } catch (Exception e) {
+             // Fallback attempt
+        }
+    }
 
     public void clickPlantsTab() {
         plantsSidebarLink.click();
     }
-
-    public void enterPlantName(String name) {
+    
+    public void enterSearchPlantName(String name) {
         searchInput.clear();
         searchInput.sendKeys(name);
+    }
+
+    public void enterPlantName(String name) {
+        plantNameInput.clear();
+        plantNameInput.sendKeys(name);
+    }
+    
+    public void clickSave() {
+        saveBtn.click();
+    }
+    
+    public void clickCancel() {
+        cancelBtn.click();
+    }
+    
+    public boolean isPlantsPageDisplayed() {
+         try {
+             return driver.getCurrentUrl().contains("/ui/plants") && !driver.getCurrentUrl().contains("/add") && !driver.getCurrentUrl().contains("/edit");
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public void clickSearch() {

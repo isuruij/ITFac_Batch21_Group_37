@@ -37,16 +37,46 @@ public class CategoriesPage {
     // Success Message - Guessing locator based on common frameworks
     @FindBy(xpath = "//div[contains(@class, 'alert-success')]")
     WebElement successAlert;
+    
+    // Error Alert
+    @FindBy(xpath = "//div[contains(@class, 'alert-danger')]")
+    WebElement errorAlert;
+
+    // Sorting Headers
+    @FindBy(xpath = "//th[contains(text(),'ID')]")
+    WebElement idHeader;
+
+    @FindBy(xpath = "//th[contains(text(),'Name')]")
+    WebElement nameHeader;
+    
+    // Assuming the header text is "Parent Category"
+    @FindBy(xpath = "//th[contains(text(),'Parent Category')]")
+    WebElement parentCategoryHeader;
+    
+    @FindBy(xpath = "//a[text()='Cancel']")
+    WebElement cancelBtn;
 
     // Table
     By categoryRowsLocator = By.xpath("//tbody/tr");
 
-    public CategoriesPage(WebDriver driver) {
-        this.driver = driver;
-        PageFactory.initElements(driver, this);
+    public void clickSortById() {
+       idHeader.click();
+    }
+
+    public void clickSortByName() {
+       nameHeader.click();
+    }
+
+    public void clickSortByParentCategory() {
+       parentCategoryHeader.click();
+    }
+
+    public List<WebElement> getTableRows() {
+        return driver.findElements(categoryRowsLocator);
     }
 
     public void clickCategoriesTab() {
+
         categoriesSidebarLink.click();
     }
 
@@ -117,6 +147,14 @@ public class CategoriesPage {
     public boolean isSuccessMessageDisplayed() {
         try {
             return successAlert.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean isErrorAlertDisplayed() {
+        try {
+            return errorAlert.isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -200,6 +238,86 @@ public class CategoriesPage {
             return false;
         } finally {
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        }
+    }
+
+    public void clickCancel() {
+        cancelBtn.click();
+    }
+
+    public boolean isCategoriesPageDisplayed() {
+        try {
+             return driver.getCurrentUrl().contains("/ui/categories") && !driver.getCurrentUrl().contains("/add") && !driver.getCurrentUrl().contains("/edit");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void clickEditCategory(String categoryName) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.presenceOfElementLocated(categoryRowsLocator));
+        
+        List<WebElement> rows = driver.findElements(categoryRowsLocator);
+        boolean found = false;
+        for(WebElement row : rows) {
+            if(row.getText().contains(categoryName)) {
+                List<WebElement> userLinks = row.findElements(By.tagName("a"));
+                for(WebElement link : userLinks) {
+                     if(link.getAttribute("href") != null && link.getAttribute("href").contains("edit")) { 
+                          link.click();
+                          found = true;
+                          break;
+                     }
+                }
+                if(found) break;
+            }
+        }
+        if(!found) {
+             throw new RuntimeException("Category not found for editing: " + categoryName);
+        }
+    }
+
+    public void clickDeleteCategory(String categoryName) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.presenceOfElementLocated(categoryRowsLocator));
+        
+        List<WebElement> rows = driver.findElements(categoryRowsLocator);
+        boolean found = false;
+        for(WebElement row : rows) {
+            if(row.getText().contains(categoryName)) {
+                // Find delete button - usually a button or link with delete text/icon
+                List<WebElement> buttons = row.findElements(By.xpath(".//button | .//a"));
+                for(WebElement btn : buttons) {
+                     String text = btn.getText().toLowerCase();
+                     String title = btn.getAttribute("title");
+                     String clazz = btn.getAttribute("class");
+                     
+                     if((text != null && (text.contains("delete") || text.contains("remove"))) ||
+                        (title != null && title.toLowerCase().contains("delete")) ||
+                        (clazz != null && clazz.contains("danger"))) { // Danger usually means delete
+                         
+                         btn.click();
+                         found = true;
+                         
+                         // Handle potential JS confirmation
+                         try {
+                              if(wait.until(ExpectedConditions.alertIsPresent()) != null) {
+                                   // do nothing here, let the test step handle validation or accept
+                                   // or we can't assert the error message if we auto accept too fast?
+                                   // Actually UI steps usually handle alerts if they are the 'result'.
+                                   // But here if it's a confirmation "Are you sure?", we must accept to PROCEED to the deletion attempt.
+                                   driver.switchTo().alert().accept();
+                              }
+                         } catch (Exception e) {}
+                         
+                         break;
+                     }
+                }
+                if(found) break;
+            }
+        }
+        if(!found) {
+             throw new RuntimeException("Category delete button not found for: " + categoryName);
         }
     }
 }

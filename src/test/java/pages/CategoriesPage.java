@@ -43,21 +43,22 @@ public class CategoriesPage {
     WebElement errorAlert;
 
     // Sorting Headers
-    @FindBy(xpath = "//th[contains(text(),'ID')]")
+    @FindBy(xpath = "//a[contains(@href, 'sortField=id')]")
     WebElement idHeader;
 
-    @FindBy(xpath = "//th[contains(text(),'Name')]")
+    @FindBy(xpath = "//a[contains(@href, 'sortField=name')]")
     WebElement nameHeader;
     
-    // Assuming the header text is "Parent Category"
-    @FindBy(xpath = "//th[contains(text(),'Parent Category')]")
+    @FindBy(xpath = "//a[contains(@href, 'sortField=parent.name')]")
     WebElement parentCategoryHeader;
-    
-    @FindBy(xpath = "//a[text()='Cancel']")
-    WebElement cancelBtn;
 
     // Table
     By categoryRowsLocator = By.xpath("//tbody/tr");
+
+    public CategoriesPage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+    }
 
     public void clickSortById() {
        idHeader.click();
@@ -241,17 +242,6 @@ public class CategoriesPage {
         }
     }
 
-    public void clickCancel() {
-        cancelBtn.click();
-    }
-
-    public boolean isCategoriesPageDisplayed() {
-        try {
-             return driver.getCurrentUrl().contains("/ui/categories") && !driver.getCurrentUrl().contains("/add") && !driver.getCurrentUrl().contains("/edit");
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
     public void clickEditCategory(String categoryName) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));

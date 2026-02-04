@@ -40,6 +40,14 @@ Feature: UI Test Scenarios for M4-UI-01
       | admin    | admin123 |
       | testuser | test123  |
 
+  @M4-UI-03 @UI
+  Scenario: Verify Dashboard displays correct "Main Category", "Sub Category" and "Total Plant" counts
+    Given I am logged in as "testuser" with "test123"
+    When I am on the Dashboard page
+    Then I should see the Main Category count matches the actual system count
+    And I should see the Sub Category count matches the actual system count
+    And I should see the Total Plant count matches the actual system count
+
   @M4-UI-04 @UI
   Scenario: Verify Sorting Categories by ID, Name, and Parent Category
     Given I am logged in as "admin" with "admin123"

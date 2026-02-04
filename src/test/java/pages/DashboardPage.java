@@ -23,6 +23,16 @@ public class DashboardPage {
     // Inventory Card
     @FindBy(xpath = "//div[contains(@class,'card')][.//h6[contains(text(),'Inventory')]]")
     WebElement inventoryCard;
+
+    // Counts
+    @FindBy(xpath = "//div[contains(@class,'card')][.//h6[contains(text(),'Categories')]]//div[contains(text(),'Main')]/preceding-sibling::div")
+    WebElement mainCategoryCount;
+
+    @FindBy(xpath = "//div[contains(@class,'card')][.//h6[contains(text(),'Categories')]]//div[contains(text(),'Sub')]/preceding-sibling::div")
+    WebElement subCategoryCount;
+
+    @FindBy(xpath = "//div[contains(@class,'card')][.//h6[contains(text(),'Plants')]]//div[contains(text(),'Total')]/preceding-sibling::div")
+    WebElement totalPlantCount;
     
     // Dashboard Header or verification element
     // Assuming there might be a dashboard title, but relying on cards for now.
@@ -46,5 +56,17 @@ public class DashboardPage {
 
     public boolean isInventoryCardDisplayed() {
         return inventoryCard.isDisplayed();
+    }
+
+    public String getMainCategoryCount() {
+        return mainCategoryCount.getText();
+    }
+
+    public String getSubCategoryCount() {
+        return subCategoryCount.getText();
+    }
+
+    public String getTotalPlantCount() {
+        return totalPlantCount.getText();
     }
 }

@@ -24,7 +24,7 @@ public class NavigationMenu {
     @FindBy(xpath = "//a[contains(@href, '/ui/sales')]")
     WebElement salesLink;
 
-    @FindBy(xpath = "//a[contains(@href, '/ui/inventory')]")
+    @FindBy(xpath = "//a[contains(text(), 'Inventory')]")
     WebElement inventoryLink;
 
     public NavigationMenu(WebDriver driver) {
@@ -53,6 +53,11 @@ public class NavigationMenu {
             return classes != null && classes.contains("active");
         }
         return false;
+    }
+
+    public String getLinkClasses(String linkName) {
+        WebElement link = getLinkElement(linkName);
+        return (link != null) ? link.getAttribute("class") : "Link not found";
     }
 
     private WebElement getLinkElement(String linkName) {

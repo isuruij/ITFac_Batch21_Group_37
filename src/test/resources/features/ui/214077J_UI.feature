@@ -117,8 +117,7 @@ Feature: UI Test Scenarios for M4-UI-01
   @M4-UI-10 @UI
   Scenario: Verify preventing deletion of category with linked plants
     Given I am logged in as "admin" with "admin123"
-    And I navigate to the Categories page
-    And A category "CategoryWithPlants" exists with a linked plant "PlantForCategoryDeletion"
-    When I click on the Delete button for category "CategoryWithPlants"
+    And I identify a category with a linked plant
+    When I attempt to delete the identified category
     Then I should see an error message indicating deletion is not allowed
-    And The category "CategoryWithPlants" should still be visible in the list
+    And The identified category should still be visible in the list

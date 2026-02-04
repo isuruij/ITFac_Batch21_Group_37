@@ -35,6 +35,12 @@ public class PlantsPage {
     @FindBy(tagName = "select")
     WebElement categorySelect;
     
+    @FindBy(name = "price")
+    WebElement priceInput;
+
+    @FindBy(name = "quantity")
+    WebElement quantityInput;
+
     @FindBy(xpath = "//a[text()='Cancel']")
     WebElement cancelBtn;
     
@@ -75,6 +81,16 @@ public class PlantsPage {
         plantNameInput.sendKeys(name);
     }
     
+    public void enterPrice(String price) {
+        priceInput.clear();
+        priceInput.sendKeys(price);
+    }
+
+    public void enterQuantity(String quantity) {
+        quantityInput.clear();
+        quantityInput.sendKeys(quantity);
+    }
+
     public void clickSave() {
         saveBtn.click();
     }
@@ -178,6 +194,30 @@ public class PlantsPage {
             }
         }
         return false;
+    }
+
+    public List<String> getUniqueCategoriesFromTable() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        try {
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[contains(@class, 'table')]//tbody//tr")));
+        } catch (Exception e) {
+            return new java.util.ArrayList<>();
+        }
+
+        List<WebElement> rows = driver.findElements(By.xpath("//table[contains(@class, 'table')]//tbody//tr"));
+        List<String> categories = new java.util.ArrayList<>();
+
+        for (WebElement row : rows) {
+            List<WebElement> cells = row.findElements(By.tagName("td"));
+            // 2nd Column is Category (Index 1)
+            if (cells.size() > 1) {
+                String catName = cells.get(1).getText().trim();
+                if (!catName.isEmpty() && !catName.equals("-") && !categories.contains(catName)) {
+                    categories.add(catName);
+                }
+            }
+        }
+        return categories;
     }
 
     public void clickEditPlant(String plantName) {

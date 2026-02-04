@@ -531,9 +531,14 @@ public class UISteps_214077J {
         }
     }
 
+    @When("I attempt to delete the identified category")
+    public void i_attempt_to_delete_the_identified_category() {
+        i_attempt_to_delete_the_identified_parent_category();
+    }
+
     @When("I attempt to delete the identified parent category")
     public void i_attempt_to_delete_the_identified_parent_category() {
-        Assert.assertNotNull(identifiedParentCategory, "No parent category was identified to delete!");
+        Assert.assertNotNull(identifiedParentCategory, "No target category was identified to delete!");
         
         // Search for it to ensure we can click delete
         categoriesPage.enterSearchKeyword(identifiedParentCategory);
@@ -541,6 +546,11 @@ public class UISteps_214077J {
         try { Thread.sleep(1000); } catch (InterruptedException e) {}
         
         categoriesPage.clickDeleteCategory(identifiedParentCategory);
+    }
+    
+    @Then("The identified category should still be visible in the list")
+    public void the_identified_category_should_still_be_visible_in_the_list() {
+        the_identified_parent_category_should_still_be_visible_in_the_list();
     }
     
     @Then("The identified parent category should still be visible in the list")
@@ -633,12 +643,62 @@ public class UISteps_214077J {
          Assert.assertTrue(isError, "Error message or prevention for deletion not observed");
     }
 
+    @Given("I identify a category with a linked plant")
+    public void i_identify_a_category_with_a_linked_plant() {
+        if(plantsPage == null) initPages();
+        navigationMenu.clickLink("Plants");
+        
+        List<String> categoriesWithPlants = plantsPage.getUniqueCategoriesFromTable();
+        System.out.println("Scanning Plants table for used categories. Found: " + categoriesWithPlants);
+        
+        identifiedParentCategory = null;
+        
+        // Verify if the category actually exists (it should)
+        if (!categoriesWithPlants.isEmpty()) {
+            identifiedParentCategory = categoriesWithPlants.get(0);
+            System.out.println("Identified category with linked plant: " + identifiedParentCategory);
+        }
+        
+        // If not found, create one
+        if(identifiedParentCategory == null) {
+            System.out.println("No existing category with plants found. Creating new pair...");
+            long timestamp = System.currentTimeMillis();
+            String catName = "LinkedCat_" + timestamp;
+            String plantName = "LinkedPlant_" + timestamp;
+            
+            // Go to Categories to create category
+            i_navigate_to_the_categories_page();
+            a_category_exists(catName);
+            
+            // Go to Plants to create plant
+            navigationMenu.clickLink("Plants");
+            plantsPage.clickAddaPlant();
+            plantsPage.enterPlantName(plantName);
+            plantsPage.selectPlantCategory(catName);
+            plantsPage.enterPrice("50.00");
+            plantsPage.enterQuantity("100");
+            plantsPage.clickSave();
+            
+            identifiedParentCategory = catName;
+        }
+        
+        // Return to Categories page for the deletion attempt
+        i_navigate_to_the_categories_page();
+    }
+
     @Given("A category {string} exists with a linked plant {string}")
     public void a_category_exists_with_a_linked_plant(String categoryName, String plantName) {
         if(categoriesPage == null) initPages();
         
         // 1. Create Category
+         categoriesPage.enterSearchKeyword(categoryName);
+         categoriesPage.clickSearch();
+         try { Thread.sleep(1000); } catch (InterruptedException e) {}
+
         if(!categoriesPage.isCategoryInList(categoryName)) {
+            // Clear search
+            i_navigate_to_the_categories_page();
+            
             categoriesPage.clickAddCategory();
             categoriesPage.enterCategoryName(categoryName);
             categoriesPage.clickSave();
@@ -654,7 +714,8 @@ public class UISteps_214077J {
             plantsPage.clickAddaPlant();
             plantsPage.enterPlantName(plantName);
             plantsPage.selectPlantCategory(categoryName);
-            // Optional: other required fields if validation fails
+            plantsPage.enterPrice("50.00");
+            plantsPage.enterQuantity("100");
             plantsPage.clickSave();
             try { Thread.sleep(1000); } catch (InterruptedException e) {}
             if(!plantsPage.isPlantsPageDisplayed()) plantsPage.clickPlantsTab();

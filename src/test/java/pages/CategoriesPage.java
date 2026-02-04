@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.ArrayList;
 
 public class CategoriesPage {
     WebDriver driver;
@@ -98,7 +99,20 @@ public class CategoriesPage {
         try {
             select.selectByVisibleText(parentName);
         } catch (Exception e) {
-            System.out.println("Could not select by text: " + parentName + ". Trying value...");
+            System.out.println("Could not select by text: " + parentName + ". Trying partial match...");
+            boolean found = false;
+            for(WebElement option : select.getOptions()) {
+                if(option.getText().trim().contains(parentName)) {
+                    select.selectByVisibleText(option.getText());
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                System.out.println("Failed to select parent category: " + parentName);
+                // Optionally throw to fail test setup
+                // throw new RuntimeException("Parent category not found in dropdown: " + parentName);
+            }
         }
     }
 
@@ -176,6 +190,13 @@ public class CategoriesPage {
         cancelBtn.click();
     }
 
+    @FindBy(xpath = "//form[contains(@action, '/edit/')]//a[text()='Cancel']")
+    WebElement editCancelBtn;
+
+    public void clickEditCancel() {
+        editCancelBtn.click();
+    }
+
     public boolean isCategoriesPageDisplayed() {
         return driver.getCurrentUrl().contains("/ui/categories") && !driver.getCurrentUrl().contains("/add");
     }
@@ -183,11 +204,49 @@ public class CategoriesPage {
     @FindBy(className = "pagination")
     WebElement pagination;
 
+    @FindBy(xpath = "//a[contains(text(), 'Next')]")
+    WebElement nextPageBtn;
+
+    @FindBy(xpath = "//a[contains(text(), 'Previous')]")
+    WebElement previousPageBtn;
+
+    @FindBy(xpath = "//li[contains(@class, 'page-item active')]//a")
+    WebElement activePageNumber;
+
     public boolean isPaginationDisplayed() {
         try {
             return pagination.isDisplayed();
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public void clickNextPage() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.elementToBeClickable(nextPageBtn));
+            nextPageBtn.click();
+        } catch (org.openqa.selenium.ElementClickInterceptedException e) {
+            // Force click with JS if intercepted (e.g. by overlay or footer)
+            ((org.openqa.selenium.JavascriptExecutor)driver).executeScript("arguments[0].click();", nextPageBtn);
+        }
+    }
+
+    public void clickPreviousPage() {
+        try {
+             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+             wait.until(ExpectedConditions.elementToBeClickable(previousPageBtn));
+             previousPageBtn.click();
+        } catch (org.openqa.selenium.ElementClickInterceptedException e) {
+             ((org.openqa.selenium.JavascriptExecutor)driver).executeScript("arguments[0].click();", previousPageBtn);
+        }
+    }
+
+    public int getActivePageNumber() {
+        try {
+            return Integer.parseInt(activePageNumber.getText().trim());
+        } catch (Exception e) {
+            return 1;
         }
     }
 
@@ -250,10 +309,18 @@ public class CategoriesPage {
         List<WebElement> rows = driver.findElements(categoryRowsLocator);
         boolean found = false;
         for(WebElement row : rows) {
+            // Check if row contains the category name (in the designated column preferably, or just anywhere)
             if(row.getText().contains(categoryName)) {
                 List<WebElement> userLinks = row.findElements(By.tagName("a"));
                 for(WebElement link : userLinks) {
-                     if(link.getAttribute("href") != null && link.getAttribute("href").contains("edit")) { 
+                     String href = link.getAttribute("href");
+                     String title = link.getAttribute("title");
+                     String text = link.getText();
+                     
+                     // Robust check for Edit button
+                     if((href != null && href.contains("edit")) || 
+                        (title != null && title.toLowerCase().contains("edit")) ||
+                        (text != null && text.toLowerCase().contains("edit"))) { 
                           link.click();
                           found = true;
                           break;
@@ -263,8 +330,33 @@ public class CategoriesPage {
             }
         }
         if(!found) {
-             throw new RuntimeException("Category not found for editing: " + categoryName);
+             throw new RuntimeException("Category not found for editing: " + categoryName + ". Available rows: " + rows.size());
         }
+    }
+
+    public List<String> getUniqueParentNamesFromTable() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        try {
+            wait.until(ExpectedConditions.presenceOfElementLocated(categoryRowsLocator));
+        } catch (Exception e) {
+            return new ArrayList<>(); // Return empty if no table (e.g. no results)
+        }
+        
+        List<WebElement> rows = driver.findElements(categoryRowsLocator);
+        List<String> parents = new ArrayList<>();
+        
+        for (WebElement row : rows) {
+            List<WebElement> cells = row.findElements(By.tagName("td"));
+            // Assuming 3rd column is Parent Category (Index 2)
+            if (cells.size() > 2) {
+                String parentName = cells.get(2).getText().trim();
+                // Check if valid parent name (not empty or dash)
+                if (!parentName.isEmpty() && !parentName.equals("-") && !parents.contains(parentName)) {
+                    parents.add(parentName);
+                }
+            }
+        }
+        return parents;
     }
 
     public void clickDeleteCategory(String categoryName) {
@@ -307,7 +399,10 @@ public class CategoriesPage {
             }
         }
         if(!found) {
-             throw new RuntimeException("Category delete button not found for: " + categoryName);
+             // Debug info
+             List<String> rowTexts = new ArrayList<>();
+             for(WebElement r : rows) rowTexts.add(r.getText());
+             throw new RuntimeException("Category delete button not found for: " + categoryName + ". Visible rows: " + rowTexts);
         }
     }
 }

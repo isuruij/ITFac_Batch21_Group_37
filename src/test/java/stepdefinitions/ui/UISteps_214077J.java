@@ -300,6 +300,12 @@ public class UISteps_214077J {
         categoriesPage.clickCancel();
     }
 
+    @When("I click the Cancel button on the Edit Category page")
+    public void i_click_the_cancel_button_on_the_edit_category_page() {
+        if(categoriesPage == null) initPages();
+        categoriesPage.clickEditCancel();
+    }
+
     @Then("I should be redirected to the Category list page")
     public void i_should_be_redirected_to_the_category_list_page() {
         Assert.assertTrue(categoriesPage.isCategoriesPageDisplayed(), "Not redirected to Category list page");
@@ -313,16 +319,49 @@ public class UISteps_214077J {
     @Given("A category {string} exists")
     public void a_category_exists(String categoryName) {
         if(categoriesPage == null) initPages();
+        if(!driver.getCurrentUrl().contains("categories")) {
+             i_navigate_to_the_categories_page();
+        }
+
+        // Search first to see if it exists anywhere
+        categoriesPage.enterSearchKeyword(categoryName);
+        categoriesPage.clickSearch();
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+
         if(!categoriesPage.isCategoryInList(categoryName)) {
+            System.out.println("Category " + categoryName + " not found after search. Creating it...");
+            // Clear search by reloading page
+            i_navigate_to_the_categories_page();
+            
             categoriesPage.clickAddCategory();
             categoriesPage.enterCategoryName(categoryName);
             categoriesPage.clickSave();
-            // Wait for save might be needed, assuming redirect happens
-            try { Thread.sleep(1000); } catch (InterruptedException e) {}
+            
+            // Wait for save
+            try { Thread.sleep(2000); } catch (InterruptedException e) {}
+            
             if(!categoriesPage.isCategoriesPageDisplayed()) {
+                 // Use a dummy check or log if needed, but remove loud debugs for final code
+                 System.out.println("Still on add/edit page. Navigating back...");
                  categoriesPage.clickCategoriesTab();
             }
+            
+            // Search again to confirm
+            categoriesPage.enterSearchKeyword(categoryName);
+            categoriesPage.clickSearch();
+            try { Thread.sleep(1000); } catch (InterruptedException e) {}
+            
+            if(!categoriesPage.isCategoryInList(categoryName)) {
+                List<WebElement> rows = categoriesPage.getTableRows();
+                List<String> names = new ArrayList<>();
+                for(WebElement r : rows) names.add(r.getText());
+                Assert.fail("Failed to create category: " + categoryName + ". Visible rows after search: " + names);
+            }
+        } else {
+             System.out.println("Category " + categoryName + " already exists.");
         }
+        // Reset view to full list
+        i_navigate_to_the_categories_page();
     }
 
     @When("I click on the Edit button for category {string}")
@@ -344,7 +383,8 @@ public class UISteps_214077J {
     @When("I click on the Add Plant button")
     public void i_click_on_the_add_plant_button() {
         if(plantsPage == null) initPages();
-        plantsPage.clickAddPlant();
+        // Use the correct method matching the HTML "Add a Plant"
+        plantsPage.clickAddaPlant();
     }
 
     @When("I enter plant name {string}")
@@ -371,7 +411,7 @@ public class UISteps_214077J {
     public void a_plant_exists(String plantName) {
         if(plantsPage == null) initPages();
         if(!plantsPage.isPlantInList(plantName)) {
-            plantsPage.clickAddPlant();
+            plantsPage.clickAddaPlant();
             plantsPage.enterPlantName(plantName);
             // Assuming required fields: Just name for now based on test requirements validation logic
             plantsPage.clickSave();
@@ -403,18 +443,32 @@ public class UISteps_214077J {
         boolean isError = false;
         try {
             // Might be an alert-danger or invalid-feedback
-             // Assuming validation error appears
-             String feedback = categoriesPage.getInvalidFeedbackText();
-             if(feedback != null && !feedback.isEmpty()) isError = true;
+             String feedback = "";
+             try { feedback = categoriesPage.getInvalidFeedbackText(); } catch(Exception e) {}
+             
+             if(feedback != null && !feedback.isEmpty()) {
+                 isError = true;
+                 System.out.println("Duplicate check found feedback: " + feedback);
+             }
              
              // Or an alert
              if(!isError) {
-                  // Add logic in page object if needed but basic check:
-                  // For now, let's assume if we are not redirected, it might be working, but we need visible error.
-                  // I'll add a method in page object to check for error alert.
                   isError = categoriesPage.isErrorAlertDisplayed();
+                  if(isError) System.out.println("Duplicate check found error alert.");
              }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        // Debugging if failed
+        if(!isError) {
+             System.out.println("Debug Verify Duplicate: No error found. Current URL: " + driver.getCurrentUrl());
+             try {
+                WebElement body = driver.findElement(By.tagName("body"));
+                System.out.println("Body Text snippet: " + body.getText().substring(0, Math.min(body.getText().length(), 500)));
+             } catch(Exception e) {}
+        }
+        
         Assert.assertTrue(isError, "Error message for duplicate category not displayed");
     }
 
@@ -425,20 +479,118 @@ public class UISteps_214077J {
         Assert.assertTrue(driver.getCurrentUrl().contains("/add") || driver.getCurrentUrl().contains("/create"), "Not on Add Category page");
     }
 
+    private String identifiedParentCategory;
+
+    @Given("I identify a category with a sub-category")
+    public void i_identify_a_category_with_a_sub_category() {
+        if(categoriesPage == null) initPages();
+        
+        // Ensure we are at the start
+        if(!driver.getCurrentUrl().contains("/ui/categories") || driver.getCurrentUrl().contains("/add")) {
+            i_navigate_to_the_categories_page();
+        } else {
+             // If search was applied, clear it? A simple navigate works
+             i_navigate_to_the_categories_page();
+        }
+        
+        // 1. Scan for candidates
+        List<String> candidates = categoriesPage.getUniqueParentNamesFromTable();
+        System.out.println("Scanning for existing parent categories. Candidates found: " + candidates);
+        
+        identifiedParentCategory = null;
+        
+        for(String candidate : candidates) {
+             System.out.println("Verifying candidate: " + candidate);
+             categoriesPage.enterSearchKeyword(candidate);
+             categoriesPage.clickSearch();
+             try { Thread.sleep(500); } catch (InterruptedException e) {}
+             
+             // Check if the Parent Category itself appears in the list (Name matches candidate)
+             // We need strictly the Name column to be the candidate
+             if(categoriesPage.isCategoryInList(candidate)) {
+                 identifiedParentCategory = candidate;
+                 System.out.println("Identified valid parent category: " + identifiedParentCategory);
+                 break;
+             } else {
+                 System.out.println("Candidate " + candidate + " not found as a primary category entry.");
+             }
+        }
+        
+        // If not found, create one
+        if(identifiedParentCategory == null) {
+            System.out.println("No valid existing parent-child pair found. Creating new ones...");
+             // Clear any search filter
+            i_navigate_to_the_categories_page();
+
+            long timestamp = System.currentTimeMillis();
+            String parent = "ParCat_" + timestamp;
+            String child = "SubCat_" + timestamp;
+            
+            a_category_exists_with_a_sub_category(parent, child);
+            identifiedParentCategory = parent;
+        }
+    }
+
+    @When("I attempt to delete the identified parent category")
+    public void i_attempt_to_delete_the_identified_parent_category() {
+        Assert.assertNotNull(identifiedParentCategory, "No parent category was identified to delete!");
+        
+        // Search for it to ensure we can click delete
+        categoriesPage.enterSearchKeyword(identifiedParentCategory);
+        categoriesPage.clickSearch();
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        
+        categoriesPage.clickDeleteCategory(identifiedParentCategory);
+    }
+    
+    @Then("The identified parent category should still be visible in the list")
+    public void the_identified_parent_category_should_still_be_visible_in_the_list() {
+        Assert.assertNotNull(identifiedParentCategory, "No parent category was identified!");
+        
+        // Clear search or re-search to verify existence
+        categoriesPage.enterSearchKeyword(identifiedParentCategory);
+        categoriesPage.clickSearch();
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+
+        Assert.assertTrue(categoriesPage.isCategoryInList(identifiedParentCategory), 
+            "Category " + identifiedParentCategory + " was deleted but should have been protected.");
+    }
+
     @Given("A category {string} exists with a sub-category {string}")
     public void a_category_exists_with_a_sub_category(String parentName, String subName) {
         if(categoriesPage == null) initPages();
-        // Create Parent
+        
+        // 1. Ensure Parent Exists
+        categoriesPage.enterSearchKeyword(parentName);
+        categoriesPage.clickSearch();
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        
         if(!categoriesPage.isCategoryInList(parentName)) {
+            // Clear search to create
+            if(driver.getCurrentUrl().contains("search")) {
+                 i_navigate_to_the_categories_page(); 
+            }
+            
             categoriesPage.clickAddCategory();
             categoriesPage.enterCategoryName(parentName);
             categoriesPage.clickSave();
             try { Thread.sleep(1000); } catch (InterruptedException e) {}
             if(!categoriesPage.isCategoriesPageDisplayed()) categoriesPage.clickCategoriesTab();
         }
+
+        // 2. Ensure Sub Exists
+        // Search specifically for sub to avoid false positives
+        i_navigate_to_the_categories_page(); 
+        categoriesPage.enterSearchKeyword(subName);
+        categoriesPage.clickSearch();
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
         
-        // Create Sub
         if(!categoriesPage.isCategoryInList(subName)) {
+             // Clear search to create
+            if(driver.getCurrentUrl().contains("search")) {
+                 i_navigate_to_the_categories_page(); 
+            }
+            
             categoriesPage.clickAddCategory();
             categoriesPage.enterCategoryName(subName);
             categoriesPage.selectParentCategory(parentName);
@@ -446,10 +598,19 @@ public class UISteps_214077J {
             try { Thread.sleep(1000); } catch (InterruptedException e) {}
             if(!categoriesPage.isCategoriesPageDisplayed()) categoriesPage.clickCategoriesTab();
         }
+        
+        // Reset to full list or specific view?
+        // Let the next step determine what it needs.
+        i_navigate_to_the_categories_page();
     }
 
     @When("I click on the Delete button for category {string}")
     public void i_click_on_the_delete_button_for_category(String categoryName) {
+        // Search to ensure it's visible, as it might be on another page
+        categoriesPage.enterSearchKeyword(categoryName);
+        categoriesPage.clickSearch();
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        
         categoriesPage.clickDeleteCategory(categoryName);
     }
 
@@ -490,7 +651,7 @@ public class UISteps_214077J {
         if(plantsPage == null) initPages();
         
         if(!plantsPage.isPlantInList(plantName)) {
-            plantsPage.clickAddPlant();
+            plantsPage.clickAddaPlant();
             plantsPage.enterPlantName(plantName);
             plantsPage.selectPlantCategory(categoryName);
             // Optional: other required fields if validation fails
@@ -501,6 +662,30 @@ public class UISteps_214077J {
         
         // Navigate back to Categories for the test action
         navigationMenu.clickLink("Category");
+    }
+
+    @Then("I should see pagination controls")
+    public void i_should_see_pagination_controls() {
+        Assert.assertTrue(categoriesPage.isPaginationDisplayed(), "Pagination controls are not visible");
+    }
+
+    @When("I click on the Next page button")
+    public void i_click_on_the_next_page_button() {
+        categoriesPage.clickNextPage();
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+    }
+
+    @Then("I should be on page {string} of categories")
+    public void i_should_be_on_page_of_categories(String pageNum) {
+        int expectedPage = Integer.parseInt(pageNum);
+        int actualPage = categoriesPage.getActivePageNumber();
+        Assert.assertEquals(actualPage, expectedPage, "Not on the expected page.");
+    }
+
+    @When("I click on the Previous page button")
+    public void i_click_on_the_previous_page_button() {
+        categoriesPage.clickPreviousPage();
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
     }
 }
 

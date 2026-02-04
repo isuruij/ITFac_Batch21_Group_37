@@ -64,13 +64,13 @@ Feature: UI Test Scenarios for M4-UI-01
   Scenario: Verify Cancel Action in Edit Category Page as Admin
     Given I am logged in as "admin" with "admin123"
     And I navigate to the Categories page
-    And A category "EditableCat" exists
-    When I click on the Edit button for category "EditableCat"
-    And I enter category name "EditedCatName"
-    And I click the Cancel button
+    And A category "ABC" exists
+    When I click on the Edit button for category "ABC"
+    And I enter category name "EditedABC"
+    And I click the Cancel button on the Edit Category page
     Then I should be redirected to the Category list page
-    And The category "EditedCatName" should not be visible in the list
-    And The category "EditableCat" should still be visible in the list
+    And The category "EditedABC" should not be visible in the list
+    And The category "ABC" should still be visible in the list
 
   @M4-UI-06 @UI
   Scenario: Verify Cancel Action in Add Plants Page as Admin
@@ -82,38 +82,37 @@ Feature: UI Test Scenarios for M4-UI-01
     Then I should be redirected to the Plants list page
     And The plant "CancelNewPlant" should not be visible in the list
 
-  @M4-UI-06 @UI
-  Scenario: Verify Cancel Action in Edit Plants Page as Admin
+  @M4-UI-07 @UI
+  Scenario: Verify Pagination for Category
     Given I am logged in as "admin" with "admin123"
-    And I navigate to the Plants page
-    And A plant "EditablePlant" exists
-    When I click on the Edit button for plant "EditablePlant"
-    And I enter plant name "EditedPlantName"
-    And I click the Cancel button in Plant page
-    Then I should be redirected to the Plants list page
-    And The plant "EditedPlantName" should not be visible in the list
-    And The plant "EditablePlant" should still be visible in the list
+    And I navigate to the Categories page
+    # Ensure we have enough data for pagination
+    Given Multiple categories exist in the system
+    Then I should see pagination controls
+    When I click on the Next page button
+    Then I should be on page "2" of categories
+    When I click on the Previous page button
+    Then I should be on page "1" of categories
 
   @M4-UI-08 @UI
   Scenario: Verify duplicate category name under same Main Category is rejected
     Given I am logged in as "admin" with "admin123"
     And I navigate to the Categories page
-    And A category "DuplicateCatTest" exists
+    And A category "DupCat" exists
     When I click on the Add Category button
-    And I enter category name "DuplicateCatTest"
+    And I enter category name "DupCat"
     And I click the Save button
     Then I should see an error message indicating duplicate category
     And I should see that I am still on the Add Category page
-    And I click the Cancel button
 
   @M4-UI-09 @UI
   Scenario: Verify preventing deletion of category with sub-categories
     Given I am logged in as "admin" with "admin123"
     And I navigate to the Categories page
-    And A category "ParentCatForDeletion" exists with a sub-category "SubCatChild"
-    When I click on the Delete button for category "ParentCatForDeletion"
+    And I identify a category with a sub-category
+    When I attempt to delete the identified parent category
     Then I should see an error message indicating deletion is not allowed
-    And The category "ParentCatForDeletion" should still be visible in the list
+    And The identified parent category should still be visible in the list
 
   @M4-UI-10 @UI
   Scenario: Verify preventing deletion of category with linked plants

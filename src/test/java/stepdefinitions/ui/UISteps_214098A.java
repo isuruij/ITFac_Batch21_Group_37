@@ -1,5 +1,39 @@
 package stepdefinitions.ui;
 
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import org.testng.Assert;
+import pages.SalesPage;
+import utils.DriverFactory;
+
 public class UISteps_214098A {
-    // Add step definitions here
+
+    SalesPage salesPage = new SalesPage(DriverFactory.getDriver());
+
+    @When("Navigate to the Sales page")
+    public void navigate_to_the_sales_page() {
+        salesPage.clickSalesTab();
+    }
+
+    @Then("Observe the action buttons on the page")
+    public void observe_the_action_buttons_on_the_page() {
+        Assert.assertTrue(DriverFactory.getDriver().getCurrentUrl().contains("/ui/sales"),
+                "Driver is not on Sales page.");
+    }
+
+    @Then("Sell Plant button is visible only for Admin users")
+    public void sell_plant_button_is_visible_only_for_admin_users() {
+        Assert.assertTrue(salesPage.isSellPlantButtonVisible(), "Sell Plant button is not visible for Admin.");
+    }
+
+    @When("Click the Sell Plant button")
+    public void click_the_sell_plant_button() {
+        salesPage.clickSellPlantButton();
+    }
+
+    @Then("Clicking the button navigates to the Sell Plant page successfully")
+    public void clicking_the_button_navigates_to_the_sell_plant_page_successfully() {
+        Assert.assertTrue(DriverFactory.getDriver().getCurrentUrl().contains("/ui/sales/new"),
+                "Failed to navigate to Sell Plant page.");
+    }
 }

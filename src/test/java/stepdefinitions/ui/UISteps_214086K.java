@@ -37,6 +37,11 @@ public class UISteps_214086K {
         categoriesPage.clickAddaCategory();
     }
 
+    @When("Click on Add Category Button")
+    public void click_on_add_category_button() {
+        categoriesPage.clickAddCategory();
+    }
+
     @When("Select {string} from the parent category dropdown")
     public void select_from_the_parent_category_dropdown(String parentName) {
         categoriesPage.selectParentCategory(parentName);

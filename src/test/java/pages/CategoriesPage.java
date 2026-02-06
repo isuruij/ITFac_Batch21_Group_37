@@ -24,6 +24,10 @@ public class CategoriesPage {
     @FindBy(xpath = "//a[contains(@href, '/ui/categories/add') and contains(text(), 'Add A Category')]")
     WebElement addaCategoryBtn;
 
+    // Add a category Button
+    @FindBy(xpath = "//a[contains(@href, '/ui/categories/add') and contains(text(), 'Add Category')]")
+    WebElement addCategoryBtn;
+
     // Add/Edit Form Elements
     @FindBy(name = "name")
     WebElement nameInput;
@@ -52,6 +56,10 @@ public class CategoriesPage {
 
     public void clickAddaCategory() {
         addaCategoryBtn.click();
+    }
+
+    public void clickAddCategory() {
+        addCategoryBtn.click();
     }
 
     public void enterCategoryName(String name) {

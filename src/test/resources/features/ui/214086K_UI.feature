@@ -4,7 +4,7 @@ Feature: UI Tests (214086K)
   Scenario: Verify Admin Adding Main Category
     Given Admin is logged into the system
     When Navigate to Categories tab
-    And Click on Add a Category Button
+    And Click on Add Category Button
     And Enter category name "uimaincat"
     And Click on Save button
     Then Verify that the new category "uimaincat" is added to the list

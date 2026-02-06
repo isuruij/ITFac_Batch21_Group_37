@@ -17,3 +17,21 @@ Feature: API Tests (214098A)
     Given I have a valid Admin token for Sales
     When I send a DELETE request to delete the sale with ID 5
     Then I verify the sales response status code is 404
+
+  @M5-API-04 @API
+  Scenario: Sale validation rules
+    Given I have a valid Admin token for Sales
+    When I send a POST request to create a sale for plant 2 with quantity 0
+    Then I verify the sales response status code is 400
+
+  @M5-API-05 @API
+  Scenario: Sale API role restriction - Create
+    Given I have a valid User token for Sales
+    When I send a POST request to create a sale for plant 2 with quantity 5
+    Then I verify the sales response status code is 403
+
+  @M5-API-05 @API
+  Scenario: Sale API role restriction - Delete
+    Given I have a valid User token for Sales
+    When I send a DELETE request to delete the sale with ID 2
+    Then I verify the sales response status code is 403

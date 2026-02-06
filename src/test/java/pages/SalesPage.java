@@ -75,9 +75,20 @@ public class SalesPage {
     @FindBy(xpath = "//table/tbody/tr/td[3]")
     java.util.List<WebElement> totalPriceCells;
 
+    @FindBy(xpath = "//*[contains(text(), 'No sales found')]")
+    WebElement noSalesMessage;
+
     public SalesPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
+    }
+
+    public boolean isNoSalesMessageDisplayed() {
+        try {
+            return noSalesMessage.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public boolean isSellPlantButtonPresent() {

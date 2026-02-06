@@ -79,3 +79,17 @@ Feature: Sales Management (214098A)
     Then Observe the action buttons on the page
     And Sell Plant button is not visible for User
     And Delete action is not available for User
+
+  @M5-UI-09 @UI
+  Scenario: No sales found message
+    Given Test User is logged into the system
+    And No sales exist
+    When Navigate to the Sales page
+    Then 'No sales found' message is displayed
+
+  @M5-UI-10 @UI
+  Scenario: User access restriction to Sell Plant page
+    Given Test User is logged into the system
+    When Access /ui/sales/new directly via browser URL
+    Then Access is denied or user is redirected
+    And Sell Plant page is not accessible

@@ -2,9 +2,14 @@ package stepdefinitions.ui;
 
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.cucumber.java.en.Given;
+import io.restassured.RestAssured;
 import org.testng.Assert;
 import pages.SalesPage;
 import utils.DriverFactory;
+import utils.ConfigReader;
+import java.util.List;
+import java.util.Map;
 
 public class UISteps_214098A {
 
@@ -293,5 +298,74 @@ public class UISteps_214098A {
     @Then("Delete action is not available for User")
     public void delete_action_is_not_available_for_user() {
         Assert.assertFalse(salesPage.isDeleteButtonPresent(), "Delete button should NOT be visible for User.");
+    }
+
+    @Given("No sales exist")
+    public void no_sales_exist() {
+        try {
+            // Login as Admin to get token
+            String token = RestAssured.given()
+                    .baseUri("http://localhost:8080")
+                    .contentType("application/json")
+                    .body("{\"username\": \"admin\", \"password\": \"admin123\"}")
+                    .post("/api/auth/login")
+                    .jsonPath().getString("token");
+
+            if (token == null) {
+                System.out.println("Warning: Admin login failed, cannot ensure no sales exist via API.");
+                return;
+            }
+
+            // Get all sales
+            List<Map<String, Object>> sales = RestAssured.given()
+                    .baseUri("http://localhost:8080")
+                    .header("Authorization", "Bearer " + token)
+                    .get("/api/sales")
+                    .jsonPath().getList("");
+
+            // Delete all sales
+            if (sales != null) {
+                for (Map<String, Object> sale : sales) {
+                    Integer id = (Integer) sale.get("id");
+                    RestAssured.given()
+                            .baseUri("http://localhost:8080")
+                            .header("Authorization", "Bearer " + token)
+                            .delete("/api/sales/" + id)
+                            .then().statusCode(204);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Warning: Failed to cleanup sales via API: " + e.getMessage());
+        }
+    }
+
+    @Then("'No sales found' message is displayed")
+    public void no_sales_found_message_is_displayed() {
+        Assert.assertTrue(salesPage.isNoSalesMessageDisplayed(), "'No sales found' message is not displayed.");
+    }
+
+    @When("Access \\/ui\\/sales\\/new directly via browser URL")
+    public void access_ui_sales_new_directly_via_browser_url() {
+        DriverFactory.getDriver().get(ConfigReader.getProperty("url") + "/ui/sales/new");
+    }
+
+    @Then("Access is denied or user is redirected")
+    public void access_is_denied_or_user_is_redirected() {
+        String currentUrl = DriverFactory.getDriver().getCurrentUrl();
+        // Expecting strictly NOT /ui/sales/new, likely /ui/sales or /ui/login or 403
+        // page
+        boolean isRestricted = !currentUrl.endsWith("/ui/sales/new");
+        Assert.assertTrue(isRestricted, "User was NOT redirected, still on /ui/sales/new. URL: " + currentUrl);
+    }
+
+    @Then("Sell Plant page is not accessible")
+    public void sell_plant_page_is_not_accessible() {
+        // Also check that the form unique to sell page is not present if URL check is
+        // somehow ambiguous
+        // But URL check is usually sufficient.
+        Assert.assertFalse(salesPage.isSellPlantButtonPresent(),
+                "Should not see sell form elements (reusing button check as proxy for page content if confused, but URL check is primary)");
+        // Better:
+        access_is_denied_or_user_is_redirected();
     }
 }

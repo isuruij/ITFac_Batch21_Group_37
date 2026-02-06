@@ -22,7 +22,11 @@ public class CategoriesPage {
     WebElement categoriesSidebarLink;
 
     // Add Button
-    @FindBy(xpath = "//a[contains(@href, '/ui/categories/add')]")
+    @FindBy(xpath = "//a[contains(@href, '/ui/categories/add') and contains(text(), 'Add A Category')]")
+    WebElement addaCategoryBtn;
+
+    // Add a category Button
+    @FindBy(xpath = "//a[contains(@href, '/ui/categories/add') and contains(text(), 'Add Category')]")
     WebElement addCategoryBtn;
 
     // Add/Edit Form Elements
@@ -80,6 +84,10 @@ public class CategoriesPage {
     public void clickCategoriesTab() {
 
         categoriesSidebarLink.click();
+    }
+
+    public void clickAddaCategory() {
+        addaCategoryBtn.click();
     }
 
     public void clickAddCategory() {

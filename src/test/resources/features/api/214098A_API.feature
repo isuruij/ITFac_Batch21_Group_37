@@ -53,3 +53,15 @@ Feature: API Tests (214098A)
     Given I have a valid User token for Sales
     When I send a GET request to fetch sales with page 1 size 1 and sort "id"
     Then I verify the sales response status code is 200
+
+  @M5-API-09 @API
+  Scenario: Restricted to delete sale API
+    Given I have a valid User token for Sales
+    When I send a DELETE request to delete the sale with ID 5
+    Then I verify the sales response status code is 403
+
+  @M5-API-10 @API
+  Scenario: Retrieve a sale with invalid ID
+    Given I have a valid User token for Sales
+    When I send a GET request to fetch the sale with ID 99999
+    Then I verify the sales response status code is 404

@@ -18,7 +18,7 @@ public class CategoriesPage {
     WebDriver driver;
 
     // Sidebar Link
-    @FindBy(xpath = "//a[contains(@href, '/ui/categories')]")
+    @FindBy(css = "a[href='/ui/categories']")
     WebElement categoriesSidebarLink;
 
     // Add Button
@@ -36,11 +36,11 @@ public class CategoriesPage {
     @FindBy(tagName = "select")
     WebElement parentCategorySelect;
 
-    @FindBy(xpath = "//button[text()='Save']")
+    @FindBy(css = "button[type='submit']")
     WebElement saveBtn;
 
     // Success Message - Guessing locator based on common frameworks
-    @FindBy(xpath = "//div[contains(@class, 'alert-success')]")
+    @FindBy(css = ".alert.alert-success")
     WebElement successAlert;
     
     // Error Alert

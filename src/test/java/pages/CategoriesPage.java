@@ -21,7 +21,7 @@ public class CategoriesPage {
     WebElement categoriesSidebarLink;
 
     // Add Button
-    @FindBy(xpath = "//a[contains(@href, '/ui/categories/add')]")
+    @FindBy(xpath = "//a[contains(@href, '/ui/categories/add') and contains(text(), 'Add A Category')]")
     WebElement addaCategoryBtn;
 
     // Add/Edit Form Elements

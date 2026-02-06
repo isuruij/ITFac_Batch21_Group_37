@@ -33,8 +33,8 @@ public class UISteps_214086K {
     }
 
     @When("Click on Add a Category Button")
-    public void click_on_add_category_button() {
-        categoriesPage.clickAddCategory();
+    public void click_on_add_a_category_button() {
+        categoriesPage.clickAddaCategory();
     }
 
     @When("Select {string} from the parent category dropdown")

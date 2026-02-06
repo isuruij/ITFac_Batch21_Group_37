@@ -19,3 +19,29 @@ Feature: Sales Management (214098A)
     Then Observe the confirmation popup
     When Click Confirm
     Then Sale record is deleted successfully after confirmation
+
+  @M5-UI-03 @UI
+  Scenario: Plant dropdown and quantity validation
+    Given Admin is logged into the system
+    When Navigate to the Sell Plant page
+    And Open the Plant dropdown
+    And Select a plant
+    And Enter quantity "0"
+    And Click Save
+    Then Error message "Quantity must be greater than 0" is shown
+
+  @M5-UI-04 @UI
+  Scenario: Redirect after successful sale
+    Given Admin is logged into the system
+    When Navigate to the Sell Plant page
+    And Select a plant
+    And Enter quantity "1"
+    And Click Save
+    Then Admin user is redirected to the Sales List page
+
+  @M5-UI-05 @UI
+  Scenario: Cancel navigation from Sell Plant
+    Given Admin is logged into the system
+    When Navigate to the Sell Plant page
+    And Click the Cancel button
+    Then Admin user is redirected back to the Sales List page

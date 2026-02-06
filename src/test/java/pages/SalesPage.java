@@ -5,6 +5,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
+import org.openqa.selenium.support.ui.Select;
+
 public class SalesPage {
     WebDriver driver;
 
@@ -19,6 +21,30 @@ public class SalesPage {
     // Delete Button (First one found)
     @FindBy(xpath = "//button[contains(@class, 'btn-outline-danger')]")
     WebElement deleteButton;
+
+    // Sell Plant Form Elements
+    @FindBy(name = "plantId")
+    WebElement plantDropdown;
+
+    @FindBy(name = "quantity")
+    WebElement quantityInput;
+
+    @FindBy(xpath = "//button[contains(text(), 'Sell')]")
+    WebElement sellButton;
+
+    @FindBy(xpath = "//a[contains(text(), 'Cancel')]")
+    WebElement cancelButton;
+
+    @FindBy(xpath = "//form//*[contains(@class, 'text-danger')]")
+    WebElement errorText;
+
+    // Note: User's provided HTML doesn't explicitly show 'invalid-feedback'.
+    // Usually standard validation is 'invalid-feedback' but sometimes explicit
+    // text-danger divs.
+    // The CSV says "Error message 'Quantity must be greater than 0' is shown".
+
+    @FindBy(className = "invalid-feedback")
+    WebElement invalidFeedback;
 
     public SalesPage(WebDriver driver) {
         this.driver = driver;
@@ -59,5 +85,52 @@ public class SalesPage {
 
     public void acceptAlert() {
         driver.switchTo().alert().accept();
+    }
+
+    public void selectPlantByIndex(int index) {
+        Select select = new Select(plantDropdown);
+        select.selectByIndex(index);
+    }
+
+    public void enterQuantity(String quantity) {
+        quantityInput.clear();
+        quantityInput.sendKeys(quantity);
+    }
+
+    public void clickSellButton() {
+        sellButton.click();
+    }
+
+    public void clickCancelButton() {
+        cancelButton.click();
+    }
+
+    public String getErrorMessage() {
+        // Try invalid-feedback first
+        try {
+            if (invalidFeedback.isDisplayed()) {
+                return invalidFeedback.getText();
+            }
+        } catch (Exception e) {
+        }
+
+        // Try text-danger inside form
+        try {
+            if (errorText.isDisplayed()) {
+                return errorText.getText();
+            }
+        } catch (Exception e) {
+        }
+
+        // Check HTML5 validation message on quantity input
+        try {
+            String valMsg = quantityInput.getAttribute("validationMessage");
+            if (valMsg != null && !valMsg.isEmpty()) {
+                return valMsg;
+            }
+        } catch (Exception e) {
+        }
+
+        return "";
     }
 }

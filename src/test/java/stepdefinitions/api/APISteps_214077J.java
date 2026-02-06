@@ -1,5 +1,7 @@
 package stepdefinitions.api;
 
+import io.cucumber.java.Before;
+import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -16,6 +18,49 @@ public class APISteps_214077J {
     private String authToken;
     private Response response;
     private java.util.Map<String, Integer> createdCategoryIds = new java.util.HashMap<>();
+
+    @Before("@M4-API-01")
+    public void setupForUpdateParentTest() {
+        // Ensure strictly fresh state
+        Map<String, String> credentials = new HashMap<>();
+        credentials.put("username", "admin");
+        credentials.put("password", "admin123");
+        Response loginResponse = APIUtils.post("/api/auth/login", credentials, null);
+        authToken = loginResponse.jsonPath().getString("token");
+
+        String parentName = "ParAPI01";
+        String childName = "ChiAPI01";
+        
+        // Cleanup potential leftovers
+        cleanUpCategoryByName(childName);
+        cleanUpCategoryByName(parentName);
+
+        // Create Parent
+        Map<String, Object> parentBody = new HashMap<>();
+        parentBody.put("name", parentName);
+        Response parentRes = APIUtils.post("/api/categories", parentBody, authToken);
+        int parentId = parentRes.jsonPath().getInt("id");
+        createdCategoryIds.put(parentName, parentId);
+
+        // Create Child
+        Map<String, Object> childBody = new HashMap<>();
+        childBody.put("name", childName);
+        Map<String, Object> parentObj = new HashMap<>();
+        parentObj.put("id", parentId);
+        childBody.put("parentCategory", parentObj);
+        
+        Response childRes = APIUtils.post("/api/categories", childBody, authToken);
+        int childId = childRes.jsonPath().getInt("id");
+        createdCategoryIds.put(childName, childId);
+    }
+    
+    @After("@M4-API-01")
+    public void tearDownUpdateParentTest() {
+        if (authToken != null) {
+            cleanUpCategoryByName("ChiAPI01");
+            cleanUpCategoryByName("ParAPI01");
+        }
+    }
 
     @Given("Valid Admin token is available")
     public void valid_admin_token_is_available() {
@@ -87,26 +132,6 @@ public class APISteps_214077J {
     }
     
     private void cleanUpCategoryByName(String name) {
-        // Try to find category by name to delete it.
-        // Since API doesn't have search by name easily documented in snippets, 
-        // we'll assuming we might have to just rely on teardown or specific get logic.
-        // However, if we can't search, we might fail. 
-        // But let's try to delete if we stored it in valid session or just ignore for now if we can't find it.
-        // Actually, we can assume we only clean what we created in this run context usually. 
-        // But since it persisted, we need to find it.
-        // Attempt to fetch all main/sub categories might be too heavy.
-        // Let's rely on the IDs we *might* have or skipped.
-        
-        // Better approach: Since we don't have a direct "delete by name" without ID,
-        // and fetching all is expensive, we'll try to create, if 400 Duplicate, we assume it exists.
-        // But we need the ID to start fresh.
-        // Let's implement a simple "get all and find" for cleanup if strictly needed,
-        // or just suffix the names with random numbers to avoid collision? 
-        // No, user wants consistent test names usually.
-        
-        // Let's go with "Use random suffix" effectively.
-        // But wait, the user instructions implied reusing the names in the feature file.
-        
         // Let's try to fetch all categories and find the one with the name.
         Response allCats = APIUtils.get("/api/categories", authToken);
         if (allCats.getStatusCode() == 200) {
@@ -115,7 +140,6 @@ public class APISteps_214077J {
                  if (name.equals(cat.get("name"))) {
                      APIUtils.delete("/api/categories/" + cat.get("id"), authToken);
                  }
-                 // check children if listed flat
              }
         }
         // Also check main specific endpoint if needed, but usually /api/categories lists all or main.

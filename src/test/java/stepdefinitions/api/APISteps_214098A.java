@@ -58,6 +58,17 @@ public class APISteps_214098A {
         response = APIUtils.post(endpoint, null, authToken);
     }
 
+    @When("I send a GET request to fetch all sales")
+    public void i_send_a_get_request_to_fetch_all_sales() {
+        response = APIUtils.get("/api/sales", authToken);
+    }
+
+    @When("I send a GET request to fetch sales with page {int} size {int} and sort {string}")
+    public void i_send_a_get_request_to_fetch_sales_with_page_size_and_sort(Integer page, Integer size, String sort) {
+        String endpoint = "/api/sales/page?page=" + page + "&size=" + size + "&sort=" + sort;
+        response = APIUtils.get(endpoint, authToken);
+    }
+
     // Avoid remove this. The following code is M5-API-01 specific and has been
     // commented out for now. It can be uncommented and used when implementing the
     // sales creation test case.

@@ -175,6 +175,14 @@ public class CategoriesPage {
         }
     }
 
+    public String getErrorAlertText() {
+        try {
+            return errorAlert.getText();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     // Error Feedback
     @FindBy(className = "invalid-feedback")
     WebElement invalidFeedback;

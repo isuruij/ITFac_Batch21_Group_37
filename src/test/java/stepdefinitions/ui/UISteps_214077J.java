@@ -626,21 +626,58 @@ public class UISteps_214077J {
 
     @Then("I should see an error message indicating deletion is not allowed")
     public void i_should_see_an_error_message_indicating_deletion_is_not_allowed() {
-         // Reusing error check logic
-         boolean isError = categoriesPage.isErrorAlertDisplayed();
+         boolean isError = false;
+         String errorSource = "";
+         String errorText = "";
+
+         // 1. Check for UI Alert (Bootstrap)
+         if(categoriesPage.isErrorAlertDisplayed()) {
+             errorText = categoriesPage.getErrorAlertText();
+             isError = true;
+             errorSource = "UI Alert";
+         }
          
-         // Sometimes alert is a JS alert
+         // 2. Check for JS Alert
          if(!isError) {
               try {
                   org.openqa.selenium.Alert alert = driver.switchTo().alert();
-                  String alertText = alert.getText();
+                  errorText = alert.getText();
                   alert.accept();
-                  // Assuming simple accept for now, but checking if text indicates error is good usually
                   isError = true; 
+                  errorSource = "JS Alert";
               } catch (Exception e) {}
          }
+
+         // 3. Check for Backend Error Page
+         if(!isError) {
+             try {
+                 String bodyText = driver.findElement(By.tagName("body")).getText();
+                 if(bodyText.contains("Whitelabel Error Page") || 
+                    bodyText.contains("Internal Server Error")) {
+                     isError = true;
+                     errorSource = "Backend Error Page";
+                     errorText = bodyText;
+                     if(driver.getCurrentUrl().contains("error")) {
+                        driver.navigate().back();
+                     }
+                 }
+             } catch(Exception e) {}
+         }
          
-         Assert.assertTrue(isError, "Error message or prevention for deletion not observed");
+         System.out.println("Deletion Prevention Check Result: " + isError + " (" + errorSource + ")");
+         System.out.println("Error Text Found: " + errorText);
+
+         // ASSERTION: Must show an error AND it must NOT be a technical SQL/Backend error
+         Assert.assertTrue(isError, "No error message was displayed preventing the deletion.");
+         
+         boolean isTechnicalError = errorText.contains("could not execute statement") || 
+                                    errorText.contains("foreign key constraint") || 
+                                    errorText.contains("SQL") ||
+                                    errorText.contains("Exception") ||
+                                    errorText.contains("Whitelabel Error Page");
+                                    
+         Assert.assertFalse(isTechnicalError, 
+             "Test Failed: System showed a technical/backend error instead of a user-friendly message. Actual Error: " + errorText);
     }
 
     @Given("I identify a category with a linked plant")

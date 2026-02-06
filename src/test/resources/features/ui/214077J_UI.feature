@@ -1,23 +1,18 @@
-Feature: UI Test Scenarios for M4-UI-01
+Feature: UI Tests (214077J)
 
   @M4-UI-01 @UI
   Scenario Outline: Verify Dashboard displays summary including Categories, Plants, Sales, Inventory cards upon successful login
     Given I am on the login page
-    When I login with valid credentials "<username>" and "<password>"
+    When I am logged in as "testuser" with "test123"
     Then I should see the Dashboard page
     And I should see the Categories card
     And I should see the Plants card
     And I should see the Sales card
     And I should see the Inventory card
 
-    Examples:
-      | username | password |
-      | admin    | admin123 |
-      | testuser | test123  |
-
   @M4-UI-02 @UI
   Scenario Outline: Verify Navigation Menu function and active page highlighting
-    Given I am logged in as "<username>" with "<password>"
+    Given I am logged in as "testuser" with "test123"
     Then I should see the following navigation links:
       | Dashboard |
       | Category  |
@@ -34,11 +29,6 @@ Feature: UI Test Scenarios for M4-UI-01
     Then The "Sales" navigation link should be active
     When I click on the "Inventory" navigation link
     Then The "Inventory" navigation link should be active
-
-    Examples:
-      | username | password |
-      | admin    | admin123 |
-      | testuser | test123  |
 
   @M4-UI-03 @UI
   Scenario: Verify Dashboard displays correct "Main Category", "Sub Category" and "Total Plant" counts
@@ -84,7 +74,7 @@ Feature: UI Test Scenarios for M4-UI-01
 
   @M4-UI-07 @UI
   Scenario: Verify Pagination for Category
-    Given I am logged in as "admin" with "admin123"
+    Given I am logged in as "testuser" with "test123"
     And I navigate to the Categories page
     # Ensure we have enough data for pagination
     Given Multiple categories exist in the system

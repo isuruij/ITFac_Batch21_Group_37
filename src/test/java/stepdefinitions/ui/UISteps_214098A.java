@@ -165,10 +165,133 @@ public class UISteps_214098A {
         for (int i = 0; i < dates.size() - 1; i++) {
             // Basic String comparison for YYYY-MM-DD HH:mm works for Descending
             // d1 should be >= d2
-            // "2026-02-06 12:15" vs "2026-02-06 12:14"
             int diff = dates.get(i).compareTo(dates.get(i + 1));
             Assert.assertTrue(diff >= 0,
                     "Dates not in descending order: " + dates.get(i) + " followed by " + dates.get(i + 1));
         }
+    }
+
+    @When("Click Plant Name column header")
+    public void click_plant_name_column_header() throws InterruptedException {
+        salesPage.clickPlantSortHeader();
+        Thread.sleep(1000);
+    }
+
+    @Then("Sales list sorts correctly for Plant Name")
+    public void sales_list_sorts_correctly_for_plant_name() {
+        java.util.List<String> names = salesPage.getPlantNameList();
+        if (names.size() < 2)
+            return;
+        boolean isAsc = true;
+        boolean isDesc = true;
+        // Check Ascending
+        for (int i = 0; i < names.size() - 1; i++) {
+            if (names.get(i).compareToIgnoreCase(names.get(i + 1)) > 0) {
+                isAsc = false;
+                break;
+            }
+        }
+        // Check Descending
+        for (int i = 0; i < names.size() - 1; i++) {
+            if (names.get(i).compareToIgnoreCase(names.get(i + 1)) < 0) {
+                isDesc = false;
+                break;
+            }
+        }
+        Assert.assertTrue(isAsc || isDesc, "Plant names not sorted ascending OR descending: " + names);
+    }
+
+    @When("Click Quantity column header")
+    public void click_quantity_column_header() throws InterruptedException {
+        salesPage.clickQuantitySortHeader();
+        Thread.sleep(1000);
+    }
+
+    @Then("Sales list sorts correctly for Quantity")
+    public void sales_list_sorts_correctly_for_quantity() {
+        java.util.List<Double> quantities = salesPage.getQuantityList();
+        if (quantities.size() < 2)
+            return;
+        boolean isAsc = true;
+        boolean isDesc = true;
+        for (int i = 0; i < quantities.size() - 1; i++) {
+            if (quantities.get(i) > quantities.get(i + 1)) {
+                isAsc = false;
+                break;
+            }
+        }
+        for (int i = 0; i < quantities.size() - 1; i++) {
+            if (quantities.get(i) < quantities.get(i + 1)) {
+                isDesc = false;
+                break;
+            }
+        }
+        Assert.assertTrue(isAsc || isDesc, "Quantities not sorted ascending OR descending: " + quantities);
+    }
+
+    @When("Click Total Price column header")
+    public void click_total_price_column_header() throws InterruptedException {
+        salesPage.clickTotalPriceSortHeader();
+        Thread.sleep(1000);
+    }
+
+    @Then("Sales list sorts correctly for Total Price")
+    public void sales_list_sorts_correctly_for_total_price() {
+        java.util.List<Double> prices = salesPage.getTotalPriceList();
+        if (prices.size() < 2)
+            return;
+        boolean isAsc = true;
+        boolean isDesc = true;
+        for (int i = 0; i < prices.size() - 1; i++) {
+            if (prices.get(i) > prices.get(i + 1)) {
+                isAsc = false;
+                break;
+            }
+        }
+        for (int i = 0; i < prices.size() - 1; i++) {
+            if (prices.get(i) < prices.get(i + 1)) {
+                isDesc = false;
+                break;
+            }
+        }
+        Assert.assertTrue(isAsc || isDesc, "Total Prices not sorted ascending OR descending: " + prices);
+    }
+
+    @When("Click Sold Date column header")
+    public void click_sold_date_column_header() throws InterruptedException {
+        salesPage.clickSoldAtSortHeader(); // First click
+        Thread.sleep(1000);
+    }
+
+    @Then("Sales list sorts correctly for Sold Date")
+    public void sales_list_sorts_correctly_for_sold_date() {
+        java.util.List<String> dates = salesPage.getSoldDateList();
+        if (dates.size() < 2)
+            return;
+        boolean isAsc = true;
+        boolean isDesc = true;
+        for (int i = 0; i < dates.size() - 1; i++) {
+            if (dates.get(i).compareTo(dates.get(i + 1)) > 0) {
+                isAsc = false;
+                break;
+            }
+        }
+        for (int i = 0; i < dates.size() - 1; i++) {
+            if (dates.get(i).compareTo(dates.get(i + 1)) < 0) {
+                isDesc = false;
+                break;
+            }
+        }
+        Assert.assertTrue(isAsc || isDesc, "Sold Dates not sorted ascending OR descending: " + dates);
+    }
+
+    @Then("Sell Plant button is not visible for User")
+    public void sell_plant_button_is_not_visible_for_user() {
+        Assert.assertFalse(salesPage.isSellPlantButtonPresent(), "Sell Plant button should NOT be visible for User.");
+    }
+
+    @Then("Delete action is not available for User")
+    public void delete_action_is_not_available_for_user() {
+        Assert.assertFalse(salesPage.isDeleteButtonPresent(), "Delete button should NOT be visible for User.");
     }
 }

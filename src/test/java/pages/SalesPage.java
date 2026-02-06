@@ -52,9 +52,85 @@ public class SalesPage {
     @FindBy(xpath = "//table/tbody/tr/td[4]")
     java.util.List<WebElement> soldDateCells;
 
+    // Sort Headers
+    @FindBy(css = "table thead tr th:nth-child(1) a")
+    WebElement plantSortHeader;
+
+    @FindBy(css = "table thead tr th:nth-child(2) a")
+    WebElement quantitySortHeader;
+
+    @FindBy(css = "table thead tr th:nth-child(3) a")
+    WebElement totalPriceSortHeader;
+
+    @FindBy(css = "table thead tr th:nth-child(4) a")
+    WebElement soldAtSortHeader;
+
+    // Column Data Helpers
+    @FindBy(xpath = "//table/tbody/tr/td[1]")
+    java.util.List<WebElement> plantNameCells;
+
+    @FindBy(xpath = "//table/tbody/tr/td[2]")
+    java.util.List<WebElement> quantityCells;
+
+    @FindBy(xpath = "//table/tbody/tr/td[3]")
+    java.util.List<WebElement> totalPriceCells;
+
     public SalesPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
+    }
+
+    public boolean isSellPlantButtonPresent() {
+        return !driver.findElements(org.openqa.selenium.By.xpath("//a[contains(@href, '/ui/sales/new')]")).isEmpty();
+    }
+
+    public boolean isDeleteButtonPresent() {
+        return !driver.findElements(org.openqa.selenium.By.xpath("//button[contains(@class, 'btn-outline-danger')]"))
+                .isEmpty();
+    }
+
+    public void clickPlantSortHeader() {
+        plantSortHeader.click();
+    }
+
+    public void clickQuantitySortHeader() {
+        quantitySortHeader.click();
+    }
+
+    public void clickTotalPriceSortHeader() {
+        totalPriceSortHeader.click();
+    }
+
+    public void clickSoldAtSortHeader() {
+        soldAtSortHeader.click();
+    }
+
+    public java.util.List<String> getPlantNameList() {
+        return plantNameCells.stream().map(WebElement::getText).collect(java.util.stream.Collectors.toList());
+    }
+
+    public java.util.List<Double> getQuantityList() {
+        return quantityCells.stream()
+                .map(e -> Double.parseDouble(e.getText().trim()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public java.util.List<String> getQuantityStringList() {
+        return quantityCells.stream()
+                .map(e -> e.getText().trim())
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public java.util.List<Double> getTotalPriceList() {
+        return totalPriceCells.stream()
+                .map(e -> Double.parseDouble(e.getText().trim()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public java.util.List<String> getTotalPriceStringList() {
+        return totalPriceCells.stream()
+                .map(e -> e.getText().trim())
+                .collect(java.util.stream.Collectors.toList());
     }
 
     public boolean isPaginationDisplayed() {

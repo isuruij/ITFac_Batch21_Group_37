@@ -53,3 +53,29 @@ Feature: Sales Management (214098A)
     When Navigate to the Sales page
     Then Sales list is displayed with pagination
     And Default sorting is by Sold Date Descending
+
+  @M5-UI-07 @UI
+  Scenario: User sales sorting
+    Given Test User is logged into the system
+    And At least one sale exists
+    When Navigate to the Sales page
+    
+    When Click Plant Name column header
+    Then Sales list sorts correctly for Plant Name
+    
+    When Click Quantity column header
+    Then Sales list sorts correctly for Quantity
+
+    When Click Total Price column header
+    Then Sales list sorts correctly for Total Price
+    
+    When Click Sold Date column header
+    Then Sales list sorts correctly for Sold Date
+
+  @M5-UI-08 @UI
+  Scenario: Restricted actions for User
+    Given Test User is logged into the system
+    When Navigate to the Sales page
+    Then Observe the action buttons on the page
+    And Sell Plant button is not visible for User
+    And Delete action is not available for User

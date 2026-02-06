@@ -54,13 +54,16 @@ Feature: UI Tests (214077J)
   Scenario: Verify Cancel Action in Edit Category Page as Admin
     Given I am logged in as "admin" with "admin123"
     And I navigate to the Categories page
-    And A category "ABC" exists
-    When I click on the Edit button for category "ABC"
-    And I enter category name "EditedABC"
+    # Ensure raw data exists before testing
+    And A category "TmpEdCat" exists
+    When I click on the Edit button for category "TmpEdCat"
+    And I enter category name "EdEdCat"
     And I click the Cancel button on the Edit Category page
     Then I should be redirected to the Category list page
-    And The category "EditedABC" should not be visible in the list
-    And The category "ABC" should still be visible in the list
+    And The category "EdEdCat" should not be visible in the list
+    And The category "TmpEdCat" should still be visible in the list
+    # Cleanup
+    When I click on the Delete button for category "TmpEdCat"
 
   @M4-UI-06 @UI
   Scenario: Verify Cancel Action in Add Plants Page as Admin

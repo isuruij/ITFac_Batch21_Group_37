@@ -16,6 +16,10 @@ public class SalesPage {
     @FindBy(xpath = "//a[contains(@href, '/ui/sales/new')]")
     WebElement sellPlantButton;
 
+    // Delete Button (First one found)
+    @FindBy(xpath = "//button[contains(@class, 'btn-outline-danger')]")
+    WebElement deleteButton;
+
     public SalesPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
@@ -35,5 +39,25 @@ public class SalesPage {
 
     public void clickSellPlantButton() {
         sellPlantButton.click();
+    }
+
+    public boolean isDeleteButtonVisible() {
+        try {
+            return deleteButton.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void clickDeleteButton() {
+        deleteButton.click();
+    }
+
+    public String getAlertText() {
+        return driver.switchTo().alert().getText();
+    }
+
+    public void acceptAlert() {
+        driver.switchTo().alert().accept();
     }
 }

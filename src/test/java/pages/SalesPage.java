@@ -46,9 +46,27 @@ public class SalesPage {
     @FindBy(className = "invalid-feedback")
     WebElement invalidFeedback;
 
+    @FindBy(xpath = "//ul[contains(@class, 'pagination')]")
+    WebElement pagination;
+
+    @FindBy(xpath = "//table/tbody/tr/td[4]")
+    java.util.List<WebElement> soldDateCells;
+
     public SalesPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
+    }
+
+    public boolean isPaginationDisplayed() {
+        try {
+            return pagination.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public java.util.List<String> getSoldDateList() {
+        return soldDateCells.stream().map(WebElement::getText).collect(java.util.stream.Collectors.toList());
     }
 
     public void clickSalesTab() {

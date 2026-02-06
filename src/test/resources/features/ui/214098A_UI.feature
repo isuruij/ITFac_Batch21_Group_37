@@ -45,3 +45,11 @@ Feature: Sales Management (214098A)
     When Navigate to the Sell Plant page
     And Click the Cancel button
     Then Admin user is redirected back to the Sales List page
+
+  @M5-UI-06 @UI
+  Scenario: User sales list pagination and default sorting
+    Given Test User is logged into the system
+    And At least one sale exists
+    When Navigate to the Sales page
+    Then Sales list is displayed with pagination
+    And Default sorting is by Sold Date Descending

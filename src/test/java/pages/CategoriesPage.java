@@ -124,8 +124,6 @@ public class CategoriesPage {
             }
             if(!found) {
                 System.out.println("Failed to select parent category: " + parentName);
-                // Optionally throw to fail test setup
-                // throw new RuntimeException("Parent category not found in dropdown: " + parentName);
             }
         }
     }

@@ -415,6 +415,16 @@ public class UISteps_214077J {
         Assert.assertTrue(categoriesPage.isCategoryInList(categoryName), "Category " + categoryName + " is missing.");
     }
 
+    @When("I click on the Delete button for category {string}")
+    public void i_click_on_the_delete_button_for_category(String categoryName) {
+        // Search to ensure it's visible, as it might be on another page
+        categoriesPage.enterSearchKeyword(categoryName);
+        categoriesPage.clickSearch();
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        
+        categoriesPage.clickDeleteCategory(categoryName);
+    }
+    
     @Given("I navigate to the Plants page")
     public void i_navigate_to_the_plants_page() {
         navigationMenu.clickLink("Plants");
@@ -475,7 +485,6 @@ public class UISteps_214077J {
 
     @Then("I should see an error message indicating duplicate category")
     public void i_should_see_an_error_message_indicating_duplicate_category() {
-        // Checking for common error alerts or invalid feedback
         boolean isError = false;
         try {
             // Might be an alert-danger or invalid-feedback
@@ -592,7 +601,7 @@ public class UISteps_214077J {
         try { Thread.sleep(2000); } catch (InterruptedException e) {}
         
         // Try to remove parent (convert to main category)
-        categoriesPage.selectParentCategory(""); // Empty selection = Main Category
+        categoriesPage.selectParentCategory(""); // Empty selection
         categoriesPage.clickSave();
         try { Thread.sleep(2000); } catch (InterruptedException e) {}
         
@@ -853,16 +862,6 @@ public class UISteps_214077J {
                 identifiedPlantName = null;
             }
         }
-    }
-
-    @When("I click on the Delete button for category {string}")
-    public void i_click_on_the_delete_button_for_category(String categoryName) {
-        // Search to ensure it's visible, as it might be on another page
-        categoriesPage.enterSearchKeyword(categoryName);
-        categoriesPage.clickSearch();
-        try { Thread.sleep(1000); } catch (InterruptedException e) {}
-        
-        categoriesPage.clickDeleteCategory(categoryName);
     }
 
     @Then("I should see an error message indicating deletion is not allowed")

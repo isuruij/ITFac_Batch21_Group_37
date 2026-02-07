@@ -96,6 +96,20 @@ public class CategoriesPage {
         wait.until(ExpectedConditions.visibilityOf(parentCategorySelect));
 
         Select select = new Select(parentCategorySelect);
+        
+        // If empty string, select "Main Category" option (empty value)
+        if(parentName == null || parentName.trim().isEmpty()) {
+            try {
+                select.selectByValue("");
+                System.out.println("Selected 'Main Category' (empty parent)");
+                return;
+            } catch (Exception e) {
+                System.out.println("Could not select empty parent option");
+                throw new RuntimeException("Failed to select Main Category option");
+            }
+        }
+        
+        // Otherwise select by visible text
         try {
             select.selectByVisibleText(parentName);
         } catch (Exception e) {

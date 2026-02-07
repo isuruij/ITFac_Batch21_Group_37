@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.cucumber.java.Before;
+
 public class UISteps_214077J {
 
     private WebDriver driver;
@@ -35,6 +37,11 @@ public class UISteps_214077J {
     private NavigationMenu navigationMenu;
     private CategoriesPage categoriesPage;
     private PlantsPage plantsPage;
+
+    @Before
+    public void setup() {
+        initPages();  // Initialize driver and all page objects once
+    }
 
     private void initPages() {
         driver = DriverFactory.getDriver();
@@ -46,20 +53,17 @@ public class UISteps_214077J {
     }
 
     @Given("I am on the login page")
-    public void i_am_on_the_login_page() {
-        initPages();
+    public void i_am_on_the_login_page() {    
         driver.get(ConfigReader.getProperty("url") + "/ui/login"); 
     }
 
     @When("I login with valid credentials {string} and {string}")
     public void i_login_with_valid_credentials_and(String username, String password) {
-        if(loginPage == null) initPages();
         loginPage.login(username, password);
     }
 
     @Given("I am logged in as {string} with {string}")
     public void i_am_logged_in_as_with(String username, String password) {
-        initPages();
         driver.get(ConfigReader.getProperty("url") + "/ui/login");
         loginPage.login(username, password);
         // Ensure we are logged in
@@ -68,7 +72,6 @@ public class UISteps_214077J {
 
     @Then("I should see the Dashboard page")
     public void i_should_see_the_dashboard_page() {
-        if(dashboardPage == null) initPages();
         // Wait for dashboard to load
         try {
             Thread.sleep(2000); 
@@ -99,11 +102,6 @@ public class UISteps_214077J {
 
     @When("I am on the Dashboard page")
     public void i_am_on_the_dashboard_page() {
-        if(dashboardPage == null) initPages();
-        //above step prevents NullPointerException.
-        // Already logged in and authentication happened from Given step, just ensure we are here
-        // Could click Dashboard link to be sure
-        if(navigationMenu == null) initPages();
         navigationMenu.clickLink("Dashboard");
     }
 
@@ -168,7 +166,6 @@ public class UISteps_214077J {
 
     @Then("I should see the following navigation links:")
     public void i_should_see_the_following_navigation_links(List<String> links) {
-        if(navigationMenu == null) initPages();
         for (String linkName : links) {
             Assert.assertTrue(navigationMenu.isLinkVisible(linkName), linkName + " link is not visible");
         }
@@ -203,23 +200,18 @@ public class UISteps_214077J {
 
     @Given("I navigate to the Categories page")
     public void i_navigate_to_the_categories_page() {
-        if(navigationMenu == null) initPages();
         navigationMenu.clickLink("Category");
     }
 
     @Given("Multiple categories exist in the system")
     public void multiple_categories_exist_in_the_system() {
-        // Precondition: Assumes data exists. Alternatively, create data via API here.
-        // For this assignment, we often assume the "testuser" or "admin" sees existing seed data.
         if (categoriesPage.getTableRows().isEmpty()) {
-            // Optional: Create dummy data via API call if empty
             System.out.println("Warning: No categories found to test sorting.");
         }
     }
 
     @When("I sort the categories by {string}")
     public void i_sort_the_categories_by(String criteria) {
-        if(categoriesPage == null) initPages();
         switch (criteria) {
             case "ID":
                 categoriesPage.clickSortById();
@@ -297,8 +289,7 @@ public class UISteps_214077J {
         }
         
         if (criteria.equals("Parent Category")) {
-            // Treat "-" as lowest or highest value? Standard logic usually puts empty last or first.
-            // Let's replace "-" with "", or handle custom comparator
+            // Treat "-" as "" (empty)
              List<String> cleanedData = new ArrayList<>();
              for (String s : originalData) {
                  cleanedData.add(s.equals("-") ? "" : s);
@@ -333,35 +324,8 @@ public class UISteps_214077J {
         categoriesPage.clickAddCategory();
     }
 
-    @When("I enter category name {string}")
-    public void i_enter_category_name(String name) {
-        categoriesPage.enterCategoryName(name);
-    }
-
-    @When("I click the Cancel button")
-    public void i_click_the_cancel_button() {
-        categoriesPage.clickCancel();
-    }
-
-    @When("I click the Cancel button on the Edit Category page")
-    public void i_click_the_cancel_button_on_the_edit_category_page() {
-        if(categoriesPage == null) initPages();
-        categoriesPage.clickEditCancel();
-    }
-
-    @Then("I should be redirected to the Category list page")
-    public void i_should_be_redirected_to_the_category_list_page() {
-        Assert.assertTrue(categoriesPage.isCategoriesPageDisplayed(), "Not redirected to Category list page");
-    }
-
-    @Then("The category {string} should not be visible in the list")
-    public void the_category_should_not_be_visible_in_the_list(String categoryName) {
-        Assert.assertFalse(categoriesPage.isCategoryInList(categoryName), "Category " + categoryName + " is visible but should not be.");
-    }
-
     @Given("A category {string} exists")
     public void a_category_exists(String categoryName) {
-        if(categoriesPage == null) initPages();
         if(!driver.getCurrentUrl().contains("categories")) {
              i_navigate_to_the_categories_page();
         }
@@ -426,6 +390,26 @@ public class UISteps_214077J {
         categoriesPage.clickEditCategory(categoryName);
     }
 
+    @When("I enter category name {string}")
+    public void i_enter_category_name(String name) {
+        categoriesPage.enterCategoryName(name);
+    }
+
+    @When("I click the Cancel button on the Edit Category page")
+    public void i_click_the_cancel_button_on_the_edit_category_page() {
+        categoriesPage.clickEditCancel();
+    }
+
+    @Then("I should be redirected to the Category list page")
+    public void i_should_be_redirected_to_the_category_list_page() {
+        Assert.assertTrue(categoriesPage.isCategoriesPageDisplayed(), "Not redirected to Category list page");
+    }
+
+    @Then("The category {string} should not be visible in the list")
+    public void the_category_should_not_be_visible_in_the_list(String categoryName) {
+        Assert.assertFalse(categoriesPage.isCategoryInList(categoryName), "Category " + categoryName + " is visible but should not be.");
+    }
+
     @Then("The category {string} should still be visible in the list")
     public void the_category_should_still_be_visible_in_the_list(String categoryName) {
         Assert.assertTrue(categoriesPage.isCategoryInList(categoryName), "Category " + categoryName + " is missing.");
@@ -433,14 +417,11 @@ public class UISteps_214077J {
 
     @Given("I navigate to the Plants page")
     public void i_navigate_to_the_plants_page() {
-        if(navigationMenu == null) initPages();
         navigationMenu.clickLink("Plants");
     }
 
     @When("I click on the Add Plant button")
     public void i_click_on_the_add_plant_button() {
-        if(plantsPage == null) initPages();
-        // Use the correct method matching the HTML "Add a Plant"
         plantsPage.clickAddaPlant();
     }
 
@@ -466,11 +447,9 @@ public class UISteps_214077J {
 
     @Given("A plant {string} exists")
     public void a_plant_exists(String plantName) {
-        if(plantsPage == null) initPages();
         if(!plantsPage.isPlantInList(plantName)) {
             plantsPage.clickAddaPlant();
             plantsPage.enterPlantName(plantName);
-            // Assuming required fields: Just name for now based on test requirements validation logic
             plantsPage.clickSave();
             try { Thread.sleep(1000); } catch (InterruptedException e) {}
             if(!plantsPage.isPlantsPageDisplayed()) {
@@ -542,16 +521,14 @@ public class UISteps_214077J {
 
     @Given("I identify a sub-category with a linked plant")
     public void i_identify_a_sub_category_with_a_linked_plant() {
-        if(categoriesPage == null) initPages();
-        if(plantsPage == null) initPages();
         
         System.out.println("[M4-UI-09] Looking for existing sub-category with linked plant...");
         
         // For simplicity, create a test data set
         int randomNum = (int) (Math.random() * 9000) + 1000;
-        String mainCat = "Main" + randomNum;  // e.g., "Main1234"
-        String subCat = "Sub" + randomNum;    // e.g., "Sub1234"
-        String plant = "Plt" + randomNum;     // e.g., "Plt1234"
+        String mainCat = "Main" + randomNum;
+        String subCat = "Sub" + randomNum;
+        String plant = "Plt" + randomNum;
         
         System.out.println("[M4-UI-09] Creating test data: Main=" + mainCat + ", Sub=" + subCat + ", Plant=" + plant);
         
@@ -705,7 +682,6 @@ public class UISteps_214077J {
 
     @Given("A category {string} exists with a sub-category {string}")
     public void a_category_exists_with_a_sub_category(String parentName, String subName) {
-        if(categoriesPage == null) initPages();
         
         // 1. Ensure Parent Exists
         System.out.println("[Setup] Checking if parent category exists: " + parentName);
@@ -810,9 +786,7 @@ public class UISteps_214077J {
     public void cleanupM4UI09() {
         System.out.println("[Cleanup M4-UI-09] Starting cleanup...");
         if(identifiedSubCategory != null || identifiedParentCategory != null || identifiedPlantName != null) {
-            try {
-                if(categoriesPage == null || plantsPage == null) initPages();
-                
+            try {                
                 // 1. Delete Plant first
                 if(identifiedPlantName != null) {
                     System.out.println("[Cleanup] Deleting plant: " + identifiedPlantName);
@@ -975,7 +949,6 @@ public class UISteps_214077J {
 
     @Given("I identify a category with a linked plant")
     public void i_identify_a_category_with_a_linked_plant() {
-        if(plantsPage == null) initPages();
         navigationMenu.clickLink("Plants");
         
         List<String> categoriesWithPlants = plantsPage.getUniqueCategoriesFromTable();
@@ -1018,7 +991,6 @@ public class UISteps_214077J {
 
     @Given("A category {string} exists with a linked plant {string}")
     public void a_category_exists_with_a_linked_plant(String categoryName, String plantName) {
-        if(categoriesPage == null) initPages();
         
         // 1. Create Category
          categoriesPage.enterSearchKeyword(categoryName);
@@ -1038,7 +1010,6 @@ public class UISteps_214077J {
 
         // 2. Create Plant linked to Category
         navigationMenu.clickLink("Plants");
-        if(plantsPage == null) initPages();
         
         if(!plantsPage.isPlantInList(plantName)) {
             plantsPage.clickAddaPlant();

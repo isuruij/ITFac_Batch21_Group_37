@@ -226,13 +226,13 @@ public class CategoriesPage {
     @FindBy(className = "pagination")
     WebElement pagination;
 
-    @FindBy(xpath = "//a[contains(text(), 'Next')]")
+    @FindBy(xpath = "//li[contains(@class, 'page-item')]//a[contains(text(), 'Next')]")
     WebElement nextPageBtn;
 
-    @FindBy(xpath = "//a[contains(text(), 'Previous')]")
+    @FindBy(xpath = "//li[contains(@class, 'page-item')]//a[contains(text(), 'Previous')]")
     WebElement previousPageBtn;
 
-    @FindBy(xpath = "//li[contains(@class, 'page-item active')]//a")
+    @FindBy(xpath = "//li[contains(@class, 'page-item active')]//a | //li[contains(@class, 'page-item active')]//span")
     WebElement activePageNumber;
 
     public boolean isPaginationDisplayed() {

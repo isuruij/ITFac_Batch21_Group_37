@@ -1,6 +1,7 @@
+@UI
 Feature: UI Tests (214077J)
 
-  @M4-UI-01 @UI
+  @M4-UI-01
   Scenario: Verify Dashboard displays summary including Categories, Plants, Sales, Inventory cards upon successful login
     Given Test User is logged into the system
     Then I should see the Dashboard page
@@ -9,7 +10,7 @@ Feature: UI Tests (214077J)
     And I should see the Sales card
     And I should see the Inventory card
 
-  @M4-UI-02 @UI
+  @M4-UI-02
   Scenario Outline: Verify Navigation Menu function and active page highlighting
     Given Test User is logged into the system
     Then I should see the following navigation links:
@@ -29,7 +30,7 @@ Feature: UI Tests (214077J)
     When I click on the "Inventory" navigation link
     Then The "Inventory" navigation link should be active
 
-  @M4-UI-03 @UI
+  @M4-UI-03
   Scenario: Verify Dashboard displays correct "Main Category", "Sub Category" and "Total Plant" counts
     Given Test User is logged into the system
     When I am on the Dashboard page
@@ -37,7 +38,7 @@ Feature: UI Tests (214077J)
     And I should see the Sub Category count matches the actual system count
     And I should see the Total Plant count matches the actual system count
 
-  @M4-UI-04 @UI
+  @M4-UI-04
   Scenario: Verify Sorting Categories by ID, Name, and Parent Category
     Given Admin is logged into the system
     And I navigate to the Categories page
@@ -49,7 +50,7 @@ Feature: UI Tests (214077J)
     When I sort the categories by "Parent Category"
     Then The categories should be sorted by "Parent Category" in alphabetical order
 
-  @M4-UI-05 @UI
+  @M4-UI-05
   Scenario: Verify Cancel Action in Edit Category Page as Admin
     Given Admin is logged into the system
     And I navigate to the Categories page
@@ -62,7 +63,7 @@ Feature: UI Tests (214077J)
     And The category "TmpEdCat" should still be visible in the list
     When I click on the Delete button for category "TmpEdCat"
 
-  @M4-UI-06 @UI
+  @M4-UI-06
   Scenario: Verify Cancel Action in Add Plants Page as Admin
     Given Admin is logged into the system
     And I navigate to the Plants page
@@ -72,11 +73,10 @@ Feature: UI Tests (214077J)
     Then I should be redirected to the Plants list page
     And The plant "CancelNewPlant" should not be visible in the list
 
-  @M4-UI-07 @UI
+  @M4-UI-07
   Scenario: Verify Pagination for Category
     Given Test User is logged into the system
     And I navigate to the Categories page
-    # Ensure we have enough data for pagination
     Given Multiple categories exist in the system
     Then I should see pagination controls
     When I click on the Next page button
@@ -84,7 +84,7 @@ Feature: UI Tests (214077J)
     When I click on the Previous page button
     Then I should be on page "1" of categories
 
-  @M4-UI-08 @UI
+  @M4-UI-08
   Scenario: Verify duplicate category name under same Main Category is rejected
     Given Admin is logged into the system
     And I navigate to the Categories page
@@ -95,7 +95,7 @@ Feature: UI Tests (214077J)
     Then I should see an error message indicating duplicate category
     And I should see that I am still on the Add Category page
 
-  @M4-UI-09 @UI
+  @M4-UI-09
   Scenario: Verify preventing conversion of sub-category with linked plants into main category
     Given Admin is logged into the system
     And I navigate to the Categories page
@@ -104,7 +104,7 @@ Feature: UI Tests (214077J)
     Then I should see an error message indicating conversion is not allowed
     And The sub-category should still have its parent category
 
-  @M4-UI-10 @UI
+  @M4-UI-10
   Scenario: Verify preventing deletion of category with linked plants
     Given Admin is logged into the system
     And I identify a category with a linked plant

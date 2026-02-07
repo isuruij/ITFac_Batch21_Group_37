@@ -338,11 +338,25 @@ public class UISteps_214077J {
             categoriesPage.clickSave();
             
             // Wait for save
-            try { Thread.sleep(2000); } catch (InterruptedException e) {}
+            try { Thread.sleep(4000); } catch (InterruptedException e) {}
             
             if(!categoriesPage.isCategoriesPageDisplayed()) {
-                 // Use a dummy check or log if needed, but remove loud debugs for final code
-                 System.out.println("Still on add/edit page. Navigating back...");
+                 // Check for error before navigating away
+                 String error = categoriesPage.getErrorAlertText();
+                 if (error != null && !error.isEmpty()) {
+                      Assert.fail("Failed to create category '" + categoryName + "'. Backend/Validation Error: " + error);
+                 }
+                 
+                 // Check for invalid feedback
+                 try {
+                     String feedback = categoriesPage.getInvalidFeedbackText();
+                     if (feedback != null && !feedback.isEmpty()) {
+                         Assert.fail("Failed to create category '" + categoryName + "'. Field Validation Error: " + feedback);
+                     }
+                 } catch (Exception e) {}
+
+                 System.out.println("Still on add/edit page (timeout). URL: " + driver.getCurrentUrl());
+                 System.out.println("Navigating back...");
                  categoriesPage.clickCategoriesTab();
             }
             

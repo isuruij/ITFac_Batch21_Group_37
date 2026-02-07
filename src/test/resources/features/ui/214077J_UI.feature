@@ -1,9 +1,8 @@
 Feature: UI Tests (214077J)
 
   @M4-UI-01 @UI
-  Scenario Outline: Verify Dashboard displays summary including Categories, Plants, Sales, Inventory cards upon successful login
-    Given I am on the login page
-    When I am logged in as "testuser" with "test123"
+  Scenario: Verify Dashboard displays summary including Categories, Plants, Sales, Inventory cards upon successful login
+    Given Test User is logged into the system
     Then I should see the Dashboard page
     And I should see the Categories card
     And I should see the Plants card
@@ -12,7 +11,7 @@ Feature: UI Tests (214077J)
 
   @M4-UI-02 @UI
   Scenario Outline: Verify Navigation Menu function and active page highlighting
-    Given I am logged in as "testuser" with "test123"
+    Given Test User is logged into the system
     Then I should see the following navigation links:
       | Dashboard |
       | Category  |
@@ -32,7 +31,7 @@ Feature: UI Tests (214077J)
 
   @M4-UI-03 @UI
   Scenario: Verify Dashboard displays correct "Main Category", "Sub Category" and "Total Plant" counts
-    Given I am logged in as "testuser" with "test123"
+    Given Test User is logged into the system
     When I am on the Dashboard page
     Then I should see the Main Category count matches the actual system count
     And I should see the Sub Category count matches the actual system count
@@ -40,7 +39,7 @@ Feature: UI Tests (214077J)
 
   @M4-UI-04 @UI
   Scenario: Verify Sorting Categories by ID, Name, and Parent Category
-    Given I am logged in as "admin" with "admin123"
+    Given Admin is logged into the system
     And I navigate to the Categories page
     And Multiple categories exist in the system
     When I sort the categories by "ID"
@@ -52,19 +51,20 @@ Feature: UI Tests (214077J)
 
   @M4-UI-05 @UI
   Scenario: Verify Cancel Action in Edit Category Page as Admin
-    Given I am logged in as "admin" with "admin123"
+    Given Admin is logged into the system
     And I navigate to the Categories page
-    And A category "ABC" exists
-    When I click on the Edit button for category "ABC"
-    And I enter category name "EditedABC"
+    And A category "TmpEdCat" exists
+    When I click on the Edit button for category "TmpEdCat"
+    And I enter category name "EdEdCat"
     And I click the Cancel button on the Edit Category page
     Then I should be redirected to the Category list page
-    And The category "EditedABC" should not be visible in the list
-    And The category "ABC" should still be visible in the list
+    And The category "EdEdCat" should not be visible in the list
+    And The category "TmpEdCat" should still be visible in the list
+    When I click on the Delete button for category "TmpEdCat"
 
   @M4-UI-06 @UI
   Scenario: Verify Cancel Action in Add Plants Page as Admin
-    Given I am logged in as "admin" with "admin123"
+    Given Admin is logged into the system
     And I navigate to the Plants page
     When I click on the Add Plant button
     And I enter plant name "CancelNewPlant"
@@ -74,7 +74,7 @@ Feature: UI Tests (214077J)
 
   @M4-UI-07 @UI
   Scenario: Verify Pagination for Category
-    Given I am logged in as "testuser" with "test123"
+    Given Test User is logged into the system
     And I navigate to the Categories page
     # Ensure we have enough data for pagination
     Given Multiple categories exist in the system
@@ -86,7 +86,7 @@ Feature: UI Tests (214077J)
 
   @M4-UI-08 @UI
   Scenario: Verify duplicate category name under same Main Category is rejected
-    Given I am logged in as "admin" with "admin123"
+    Given Admin is logged into the system
     And I navigate to the Categories page
     And A category "DupCat" exists
     When I click on the Add Category button
@@ -97,7 +97,7 @@ Feature: UI Tests (214077J)
 
   @M4-UI-09 @UI
   Scenario: Verify preventing deletion of category with sub-categories
-    Given I am logged in as "admin" with "admin123"
+    Given Admin is logged into the system
     And I navigate to the Categories page
     And I identify a category with a sub-category
     When I attempt to delete the identified parent category
@@ -106,7 +106,7 @@ Feature: UI Tests (214077J)
 
   @M4-UI-10 @UI
   Scenario: Verify preventing deletion of category with linked plants
-    Given I am logged in as "admin" with "admin123"
+    Given Admin is logged into the system
     And I identify a category with a linked plant
     When I attempt to delete the identified category
     Then I should see an error message indicating deletion is not allowed

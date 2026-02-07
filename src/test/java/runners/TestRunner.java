@@ -9,7 +9,7 @@ import org.testng.annotations.DataProvider;
         "html:target/cucumber-reports/cucumber-html-report.html",
         "json:target/cucumber-reports/cucumber.json",
         "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
-}, tags = "@M4-API-01 or @M4-API-02", monochrome = true)
+}, tags = "@M4-API-01 or @M4-API-02 or @M4-API-04 or @M4-API-03 or @M4-API-05 or @M4-API-06", monochrome = true)
 public class TestRunner extends AbstractTestNGCucumberTests {
     @Override
     @DataProvider(parallel = false)

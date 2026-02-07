@@ -189,4 +189,110 @@ public class APISteps_214077J {
             createdCategoryIds.remove(categoryName);
         }
     }
+
+    @When("I send a POST request to create a category with name {string} without parent ID")
+    public void i_send_a_post_request_to_create_a_category_with_name_without_parent_id(String categoryName) {
+        Map<String, String> body = new HashMap<>();
+        body.put("name", categoryName);
+        response = APIUtils.post("/api/categories", body, authToken);
+        if (response.getStatusCode() == 201) {
+             Integer id = response.jsonPath().getInt("id");
+             if(id != null) {
+                createdCategoryIds.put(categoryName, id);
+             }
+        }
+    }
+
+    @After("@M4-API-02")
+    public void tearDownM4API02() {
+        if (authToken != null) {
+            cleanUpCategoryByName("M4MainCat");
+             cleanUpCategoryByName("NoParCat");
+        }
+    }
+
+    @Given("A category with two-part name {string} exists")
+    @Given("A category with name {string} exists")
+    public void a_category_with_two_part_name_exists(String name) {
+        cleanUpCategoryByName(name);
+        Map<String, Object> body = new HashMap<>();
+        body.put("name", name);
+        Response res = APIUtils.post("/api/categories", body, authToken);
+        if (res.getStatusCode() == 201 || res.getStatusCode() == 200) {
+            createdCategoryIds.put(name, res.jsonPath().getInt("id"));
+        } else {
+             System.out.println("DEBUG: Failed to create category " + name + ". Body: " + res.getBody().asString());
+             Assert.fail("Failed to create setup category: " + name + ". Status: " + res.getStatusCode());
+        }
+    }
+
+    @When("I search for the category {string}")
+    public void i_search_for_the_category(String query) {
+        // Using 'name' or 'search' parameter based on common API patterns for this project or generic assumption
+        String encodedQuery = query.replace(" ", "%20");
+        response = APIUtils.get("/api/categories?search=" + encodedQuery, authToken);
+        if (response.getStatusCode() != 200) {
+             // Fallback: try 'name' param if 'search' fails or returns all?
+             // But actually, usually search APIs return 200 even if empty.
+        }
+    }
+
+    @Then("The response should contain the category {string}")
+    public void the_response_should_contain_the_category(String categoryName) {
+        // Response is expected to be a list of categories
+        List<Map<String, Object>> categories = response.jsonPath().getList("$");
+        Assert.assertNotNull(categories, "Search result should not be null");
+        
+        boolean found = false;
+        for (Map<String, Object> cat : categories) {
+            if (categoryName.equals(cat.get("name"))) {
+                found = true; 
+                break;
+            }
+        }
+        Assert.assertTrue(found, "Category '" + categoryName + "' not found in search results.");
+    }
+
+    @After("@M4-API-03")
+    public void tearDownTwoPartTest() {
+        if (authToken != null) {
+            cleanUpCategoryByName("Two Part");
+        }
+    }
+
+    @When("I send a POST request to create the sub-category {string} under {string} again")
+    public void i_send_a_post_request_to_create_the_sub_category_under_again(String childName, String parentName) {
+        Integer parentId = createdCategoryIds.get(parentName);
+        Assert.assertNotNull(parentId, "Parent category ID not found in created map for: " + parentName);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("name", childName);
+        Map<String, Object> parentObj = new HashMap<>();
+        parentObj.put("id", parentId);
+        body.put("parentCategory", parentObj);
+
+        // Attempting to create duplicate
+        response = APIUtils.post("/api/categories", body, authToken);
+    }
+
+    @Then("The response status code is 400 or 409")
+    public void the_response_status_code_is_400_or_409() {
+        int sc = response.getStatusCode();
+        Assert.assertTrue(sc == 400 || sc == 409, "Expected 400 or 409 but got " + sc);
+    }
+
+    @After("@M4-API-05")
+    public void tearDownDuplicateTest() {
+        if (authToken != null) {
+            cleanUpCategoryByName("ChiDup");
+            cleanUpCategoryByName("ParDup");
+        }
+    }
+
+    @After("@M4-API-06")
+    public void tearDownCaseInsensitiveTest() {
+        if (authToken != null) {
+            cleanUpCategoryByName("MixCase");
+        }
+    }
 }

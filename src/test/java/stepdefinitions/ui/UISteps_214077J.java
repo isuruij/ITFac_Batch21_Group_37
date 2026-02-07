@@ -15,8 +15,12 @@ import pages.DashboardPage;
 import pages.LoginPage;
 import pages.NavigationMenu;
 import pages.PlantsPage;
+import utils.APIUtils;
 import utils.ConfigReader;
 import utils.DriverFactory;
+import io.restassured.response.Response;
+import java.util.HashMap;
+import java.util.Map;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -96,7 +100,8 @@ public class UISteps_214077J {
     @When("I am on the Dashboard page")
     public void i_am_on_the_dashboard_page() {
         if(dashboardPage == null) initPages();
-        // Already logged in from Given step, just ensure we are here
+        //above step prevents NullPointerException.
+        // Already logged in and authentication happened from Given step, just ensure we are here
         // Could click Dashboard link to be sure
         if(navigationMenu == null) initPages();
         navigationMenu.clickLink("Dashboard");
@@ -104,27 +109,78 @@ public class UISteps_214077J {
 
     @Then("I should see the Main Category count matches the actual system count")
     public void i_should_see_the_main_category_count_matches_actual() {
-        // In a real test, this would query the DB.
-        // For this UI test assignment, we are mocking the expectation or asserting not-null
-        // Or if we can query the API/DB elsewhere.
-        // Assuming the static values from the mock dashboard HTML provided for now, but making it flexible:
-        String actualCount = dashboardPage.getMainCategoryCount();
-        Assert.assertNotNull(actualCount, "Main Category count should not be null");
-        Assert.assertTrue(actualCount.matches("\\d+"), "Main Category count should be a number");
+        // UI Count
+        String uiCountStr = dashboardPage.getMainCategoryCount();
+        Assert.assertNotNull(uiCountStr, "Main Category count should not be null");
+        int uiCount = Integer.parseInt(uiCountStr);
+
+        // API Count
+        Response response = APIUtils.get("/api/categories/main", getApiToken());
+        Assert.assertEquals(response.getStatusCode(), 200, "Failed to fetch main categories from API");
+        int apiCount = response.jsonPath().getList("$").size();
+
+        Assert.assertEquals(uiCount, apiCount, "Main Category count mismatch between UI and API");
     }
 
     @Then("I should see the Sub Category count matches the actual system count")
     public void i_should_see_the_sub_category_count_matches_actual() {
-        String actualCount = dashboardPage.getSubCategoryCount();
-        Assert.assertNotNull(actualCount, "Sub Category count should not be null");
-        Assert.assertTrue(actualCount.matches("\\d+"), "Sub Category count should be a number");
+        // UI Count
+        String uiCountStr = dashboardPage.getSubCategoryCount();
+        Assert.assertNotNull(uiCountStr, "Sub Category count should not be null");
+        int uiCount = Integer.parseInt(uiCountStr);
+
+        // API Count
+        Response response = APIUtils.get("/api/categories/sub-categories", getApiToken());
+        Assert.assertEquals(response.getStatusCode(), 200, "Failed to fetch sub categories from API");
+        int apiCount = response.jsonPath().getList("$").size();
+
+        Assert.assertEquals(uiCount, apiCount, "Sub Category count mismatch between UI and API");
     }
 
     @Then("I should see the Total Plant count matches the actual system count")
     public void i_should_see_the_total_plant_count_matches_actual() {
-        String actualCount = dashboardPage.getTotalPlantCount();
-        Assert.assertNotNull(actualCount, "Total Plant count should not be null");
-        Assert.assertTrue(actualCount.matches("\\d+"), "Total Plant count should be a number");
+        // UI Count
+        String uiCountStr = dashboardPage.getTotalPlantCount();
+        Assert.assertNotNull(uiCountStr, "Total Plant count should not be null");
+        int uiCount = Integer.parseInt(uiCountStr);
+
+        // API Count - Attempt to get all plants
+        Response response = APIUtils.get("/api/plants", getApiToken());
+        if (response.getStatusCode() == 200) {
+            // Check if it returns a list directly or a paged response or summary
+            // Assuming list based on "Get all plants" description
+            // If it returns a list
+            try {
+                int apiCount = response.jsonPath().getList("$").size();
+                Assert.assertEquals(uiCount, apiCount, "Total Plant count mismatch between UI and API");
+            } catch (Exception e) {
+                // If not a list, maybe summary? or paged?
+                // Try summary if list fails
+                 Response summaryRes = APIUtils.get("/api/plants/summary", getApiToken());
+                 if (summaryRes.getStatusCode() == 200) {
+                     // Assuming summary has a total field, otherwise fail
+                     // Try to match key like 'total', 'count', etc.
+                     // But for now fail if list structure is unexpected
+                     Assert.fail("Start identifying plant count API structure. Got: " + response.getBody().asString());
+                 }
+            }
+        } else {
+             Assert.fail("Failed to fetch plants from API. Status: " + response.getStatusCode());
+        }
+    }
+    
+    // Helper to get token (Reuse admin for system verification)
+    private String getApiToken() {
+        Map<String, String> credentials = new HashMap<>();
+        credentials.put("username", "admin");
+        credentials.put("password", "admin123");
+        Response loginResponse = APIUtils.post("/api/auth/login", credentials, null);
+        if (loginResponse.getStatusCode() != 200) {
+             // Fallback or retry? 
+             // Try testuser?? No, dashboard is usually admin view or consistent.
+             throw new RuntimeException("Failed to get API token for verification. content: " + loginResponse.getBody().asString());
+        }
+        return loginResponse.jsonPath().getString("token");
     }
 
     @Then("I should see the following navigation links:")

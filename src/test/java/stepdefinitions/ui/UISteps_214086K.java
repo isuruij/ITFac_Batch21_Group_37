@@ -73,8 +73,8 @@ public class UISteps_214086K {
     @Then("Verify {string} error message is displayed")
     public void verify_error_message_is_displayed(String expectedError) {
         String actualError = categoriesPage.getInvalidFeedbackText();
-        Assert.assertTrue(actualError.replace("\n", " ").contains(expectedError),
-                "Expected error '" + expectedError + "' not found in actual: '" + actualError + "'");
+        Assert.assertEquals(actualError.replace("\n", " ").trim(), expectedError,
+                "Expected error '" + expectedError + "' but found '" + actualError + "'");
     }
 
     @When("Click on Cancel Button")

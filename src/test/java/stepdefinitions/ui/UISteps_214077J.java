@@ -1,11 +1,14 @@
 package stepdefinitions.ui;
 
+import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.CategoriesPage;
 import pages.DashboardPage;
@@ -15,6 +18,7 @@ import pages.PlantsPage;
 import utils.ConfigReader;
 import utils.DriverFactory;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -494,6 +498,7 @@ public class UISteps_214077J {
     }
 
     private String identifiedParentCategory;
+    private String identifiedChildCategory;
 
     @Given("I identify a category with a sub-category")
     public void i_identify_a_category_with_a_sub_category() {
@@ -512,6 +517,7 @@ public class UISteps_214077J {
         System.out.println("Scanning for existing parent categories. Candidates found: " + candidates);
         
         identifiedParentCategory = null;
+        identifiedChildCategory = null;
         
         for(String candidate : candidates) {
              System.out.println("Verifying candidate: " + candidate);
@@ -536,12 +542,31 @@ public class UISteps_214077J {
              // Clear any search filter
             i_navigate_to_the_categories_page();
 
-            long timestamp = System.currentTimeMillis();
-            String parent = "ParCat_" + timestamp;
-            String child = "SubCat_" + timestamp;
+            // Generate short names that comply with 3-10 character validation rule
+            int randomNum = (int) (Math.random() * 9000) + 1000; // 4-digit random number
+            String parent = "Par" + randomNum; // e.g., "Par1234" (7 chars)
+            String child = "Sub" + randomNum;  // e.g., "Sub1234" (7 chars)
             
             a_category_exists_with_a_sub_category(parent, child);
             identifiedParentCategory = parent;
+            identifiedChildCategory = child;
+            
+            // Wait and verify the parent category is visible in the table
+            System.out.println("Verifying created parent category is visible...");
+            try { Thread.sleep(2000); } catch (InterruptedException e) {}
+            categoriesPage.enterSearchKeyword(parent);
+            categoriesPage.clickSearch();
+            try { Thread.sleep(1500); } catch (InterruptedException e) {}
+            
+            if(!categoriesPage.isCategoryInList(parent)) {
+                System.out.println("Warning: Created parent category " + parent + " not found in table after creation!");
+                // Try one more refresh
+                i_navigate_to_the_categories_page();
+                try { Thread.sleep(2000); } catch (InterruptedException e) {}
+                categoriesPage.enterSearchKeyword(parent);
+                categoriesPage.clickSearch();
+                try { Thread.sleep(1500); } catch (InterruptedException e) {}
+            }
         }
     }
 
@@ -585,47 +610,170 @@ public class UISteps_214077J {
         if(categoriesPage == null) initPages();
         
         // 1. Ensure Parent Exists
+        System.out.println("[Setup] Checking if parent category exists: " + parentName);
+        i_navigate_to_the_categories_page();
+        try { Thread.sleep(1500); } catch (InterruptedException e) {}
+        
         categoriesPage.enterSearchKeyword(parentName);
         categoriesPage.clickSearch();
-        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        try { Thread.sleep(1500); } catch (InterruptedException e) {}
         
         if(!categoriesPage.isCategoryInList(parentName)) {
-            // Clear search to create
-            if(driver.getCurrentUrl().contains("search")) {
-                 i_navigate_to_the_categories_page(); 
-            }
+            System.out.println("[Setup] Parent category not found, creating: " + parentName);
+            
+            // Navigate to ensure clean state
+            i_navigate_to_the_categories_page(); 
+            try { Thread.sleep(1000); } catch (InterruptedException e) {}
             
             categoriesPage.clickAddCategory();
+            try { Thread.sleep(500); } catch (InterruptedException e) {}
             categoriesPage.enterCategoryName(parentName);
             categoriesPage.clickSave();
-            try { Thread.sleep(1000); } catch (InterruptedException e) {}
-            if(!categoriesPage.isCategoriesPageDisplayed()) categoriesPage.clickCategoriesTab();
+            
+            // Wait for save to complete and page to load
+            try { Thread.sleep(5000); } catch (InterruptedException e) {}
+            
+            // Ensure we're back on categories page
+            if(!categoriesPage.isCategoriesPageDisplayed()) {
+                System.out.println("[Setup] Not on categories page, clicking categories tab");
+                categoriesPage.clickCategoriesTab();
+                try { Thread.sleep(2000); } catch (InterruptedException e) {}
+            }
+            
+            // Verify parent was created successfully
+            i_navigate_to_the_categories_page();
+            try { Thread.sleep(2000); } catch (InterruptedException e) {}
+            categoriesPage.enterSearchKeyword(parentName);
+            categoriesPage.clickSearch();
+            try { Thread.sleep(1500); } catch (InterruptedException e) {}
+            
+            if(!categoriesPage.isCategoryInList(parentName)) {
+                throw new RuntimeException("[Setup] Failed to create parent category: " + parentName);
+            }
+            System.out.println("[Setup] Parent category created successfully: " + parentName);
+        } else {
+            System.out.println("[Setup] Parent category already exists: " + parentName);
         }
 
         // 2. Ensure Sub Exists
-        // Search specifically for sub to avoid false positives
-        i_navigate_to_the_categories_page(); 
+        System.out.println("[Setup] Checking if sub-category exists: " + subName);
+        i_navigate_to_the_categories_page();
+        try { Thread.sleep(1500); } catch (InterruptedException e) {}
+        
         categoriesPage.enterSearchKeyword(subName);
         categoriesPage.clickSearch();
-        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        try { Thread.sleep(1500); } catch (InterruptedException e) {}
         
         if(!categoriesPage.isCategoryInList(subName)) {
-             // Clear search to create
-            if(driver.getCurrentUrl().contains("search")) {
-                 i_navigate_to_the_categories_page(); 
-            }
+            System.out.println("[Setup] Sub-category not found, creating: " + subName);
+            
+            // Navigate to ensure clean state
+            i_navigate_to_the_categories_page(); 
+            try { Thread.sleep(1000); } catch (InterruptedException e) {}
             
             categoriesPage.clickAddCategory();
+            try { Thread.sleep(500); } catch (InterruptedException e) {}
             categoriesPage.enterCategoryName(subName);
             categoriesPage.selectParentCategory(parentName);
             categoriesPage.clickSave();
-            try { Thread.sleep(1000); } catch (InterruptedException e) {}
-            if(!categoriesPage.isCategoriesPageDisplayed()) categoriesPage.clickCategoriesTab();
+            
+            // Wait for save to complete and page to load
+            try { Thread.sleep(5000); } catch (InterruptedException e) {}
+            
+            // Ensure we're back on categories page
+            if(!categoriesPage.isCategoriesPageDisplayed()) {
+                System.out.println("[Setup] Not on categories page, clicking categories tab");
+                categoriesPage.clickCategoriesTab();
+                try { Thread.sleep(2000); } catch (InterruptedException e) {}
+            }
+            
+            // Verify sub-category was created successfully
+            i_navigate_to_the_categories_page();
+            try { Thread.sleep(2000); } catch (InterruptedException e) {}
+            categoriesPage.enterSearchKeyword(subName);
+            categoriesPage.clickSearch();
+            try { Thread.sleep(1500); } catch (InterruptedException e) {}
+            
+            if(!categoriesPage.isCategoryInList(subName)) {
+                throw new RuntimeException("[Setup] Failed to create sub-category: " + subName);
+            }
+            System.out.println("[Setup] Sub-category created successfully: " + subName);
+        } else {
+            System.out.println("[Setup] Sub-category already exists: " + subName);
         }
         
-        // Reset to full list or specific view?
-        // Let the next step determine what it needs.
+        // Reset to full list
         i_navigate_to_the_categories_page();
+        try { Thread.sleep(2000); } catch (InterruptedException e) {}
+        System.out.println("[Setup] Category setup complete");
+    }
+    
+    @After("@M4-UI-09")
+    public void cleanupM4UI09() {
+        System.out.println("[Cleanup M4-UI-09] Starting cleanup...");
+        if(identifiedParentCategory != null || identifiedChildCategory != null) {
+            try {
+                if(categoriesPage == null) initPages();
+                
+                // Navigate to categories page
+                if(!driver.getCurrentUrl().contains("/ui/categories")) {
+                    i_navigate_to_the_categories_page();
+                }
+                try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                
+                // Delete child category first (if created)
+                if(identifiedChildCategory != null) {
+                    System.out.println("[Cleanup] Attempting to delete child category: " + identifiedChildCategory);
+                    try {
+                        categoriesPage.enterSearchKeyword(identifiedChildCategory);
+                        categoriesPage.clickSearch();
+                        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                        
+                        if(categoriesPage.isCategoryInList(identifiedChildCategory)) {
+                            categoriesPage.clickDeleteCategory(identifiedChildCategory);
+                            try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                            System.out.println("[Cleanup] Child category deleted: " + identifiedChildCategory);
+                        } else {
+                            System.out.println("[Cleanup] Child category not found: " + identifiedChildCategory);
+                        }
+                    } catch(Exception e) {
+                        System.out.println("[Cleanup] Failed to delete child: " + e.getMessage());
+                    }
+                }
+                
+                // Navigate back to clear search
+                i_navigate_to_the_categories_page();
+                try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                
+                // Delete parent category
+                if(identifiedParentCategory != null) {
+                    System.out.println("[Cleanup] Attempting to delete parent category: " + identifiedParentCategory);
+                    try {
+                        categoriesPage.enterSearchKeyword(identifiedParentCategory);
+                        categoriesPage.clickSearch();
+                        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                        
+                        if(categoriesPage.isCategoryInList(identifiedParentCategory)) {
+                            categoriesPage.clickDeleteCategory(identifiedParentCategory);
+                            try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                            System.out.println("[Cleanup] Parent category deleted: " + identifiedParentCategory);
+                        } else {
+                            System.out.println("[Cleanup] Parent category not found: " + identifiedParentCategory);
+                        }
+                    } catch(Exception e) {
+                        System.out.println("[Cleanup] Failed to delete parent: " + e.getMessage());
+                    }
+                }
+                
+                System.out.println("[Cleanup M4-UI-09] Cleanup completed.");
+            } catch(Exception e) {
+                System.out.println("[Cleanup M4-UI-09] Error during cleanup: " + e.getMessage());
+            } finally {
+                // Reset variables
+                identifiedParentCategory = null;
+                identifiedChildCategory = null;
+            }
+        }
     }
 
     @When("I click on the Delete button for category {string}")
@@ -790,6 +938,22 @@ public class UISteps_214077J {
     @Then("I should be on page {string} of categories")
     public void i_should_be_on_page_of_categories(String pageNum) {
         int expectedPage = Integer.parseInt(pageNum);
+        
+        // Wait for the page number to update to the expected value
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        try {
+            wait.until(driver -> {
+                int currentPage = categoriesPage.getActivePageNumber();
+                System.out.println("Current page number: " + currentPage + ", Expected: " + expectedPage);
+                return currentPage == expectedPage;
+            });
+        } catch (Exception e) {
+            // If wait times out, check one more time and fail with clear message
+            int actualPage = categoriesPage.getActivePageNumber();
+            Assert.assertEquals(actualPage, expectedPage, "Not on the expected page after waiting.");
+        }
+        
+        // Final verification
         int actualPage = categoriesPage.getActivePageNumber();
         Assert.assertEquals(actualPage, expectedPage, "Not on the expected page.");
     }

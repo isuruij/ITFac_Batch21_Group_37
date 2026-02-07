@@ -281,6 +281,104 @@ public class APISteps_214077J {
         Assert.assertTrue(sc == 400 || sc == 409, "Expected 400 or 409 but got " + sc);
     }
 
+    @When("I send a GET request to fetch a category with non-existing ID {string}")
+    public void i_send_a_get_request_to_fetch_a_category_with_non_existing_id(String id) {
+        response = APIUtils.get("/api/categories/" + id, authToken);
+    }
+
+    @Given("Valid Test User token is available")
+    public void valid_test_user_token_is_available() {
+        Map<String, String> credentials = new HashMap<>();
+        credentials.put("username", "testuser");
+        credentials.put("password", "test123");
+
+        Response loginResponse = APIUtils.post("/api/auth/login", credentials, null);
+        Assert.assertEquals(loginResponse.getStatusCode(), 200, "Login failed for testuser");
+        authToken = loginResponse.jsonPath().getString("token");
+    }
+
+    @When("I search for categories with name {string} page {int} and size {int}")
+    public void i_search_for_categories_with_name_page_and_size(String name, int page, int size) {
+        // Construct query using 'name' as requested, but also 'search' if 'name' is not standard
+        // M4-API-08 specifically requests 'name' parameter. 
+        // If the API implementation is strictly following M4-API-03 which used 'search', 'name' might fail.
+        // However, I will stick to the requirement "name=".
+        String queryString = "?name=" + name + "&page=" + page + "&size=" + size;
+        
+        System.out.println("DEBUG: Sending GET to /api/categories" + queryString);
+        response = APIUtils.get("/api/categories" + queryString, authToken);
+        System.out.println("DEBUG: search response status: " + response.getStatusCode());
+        System.out.println("DEBUG: search response body: " + response.getBody().asString());
+    }
+
+    @Then("The response should contain categories {string} and {string}")
+    public void the_response_should_contain_categories_and(String cat1, String cat2) {
+        String responseBody = response.getBody().asString();
+        List<Map<String, Object>> content = null;
+        
+        try {
+             // Try standard Spring Page "content" field
+             content = response.jsonPath().getList("content");
+        } catch (Exception e) {
+            // ignore
+        }
+        
+        if (content == null) {
+             try {
+                // Try parsing the root body as a list directly using path "" (root)
+                content = response.jsonPath().getList("");
+             } catch (Exception e) {
+                 System.out.println("DEBUG: Failed to parse response with jsonPath(\"\"): " + e.getMessage());
+             }
+        }
+
+        boolean found1 = false;
+        boolean found2 = false;
+
+        if (content != null && !content.isEmpty() && content.get(0) != null) {
+            for (Object item : content) {
+                if (item instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> c = (Map<String, Object>) item;
+                    Object n = c.get("name");
+                    if (n != null) {
+                        if (n.equals(cat1)) found1 = true;
+                        if (n.equals(cat2)) found2 = true;
+                    }
+                }
+            }
+        } else {
+             // Fallback: If parsing failed to produce expected maps, check the raw string
+             // This safeguards against RestAssured Type Ref issues on some environments
+             System.out.println("DEBUG: Parsing failed or returned nulls. Fallback to string check.");
+             if (responseBody.contains("\"name\":\"" + cat1 + "\"")) found1 = true;
+             if (responseBody.contains("\"name\":\"" + cat2 + "\"")) found2 = true;
+        }
+        
+        Assert.assertTrue(found1, "Category " + cat1 + " not found in response.");
+        Assert.assertTrue(found2, "Category " + cat2 + " not found in response.");
+    }
+
+    @After("@M4-API-08")
+    public void tearDownPaginationTest() {
+        // Need admin token to delete?
+        // If authToken is currently testuser, I might need to login as admin again or rely on the helper which might fail 
+        // if cleanup requires admin rights (likely).
+        // Best practice: Re-login as admin for teardown.
+        
+        Map<String, String> credentials = new HashMap<>();
+        credentials.put("username", "admin");
+        credentials.put("password", "admin123");
+        Response loginResponse = APIUtils.post("/api/auth/login", credentials, null);
+        if(loginResponse.getStatusCode() == 200) {
+            authToken = loginResponse.jsonPath().getString("token");
+            cleanUpCategoryByName("PageCatOne");
+            cleanUpCategoryByName("PageCatTwo");
+        }
+    }
+
+
+
     @After("@M4-API-05")
     public void tearDownDuplicateTest() {
         if (authToken != null) {

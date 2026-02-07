@@ -434,27 +434,39 @@ public class APISteps_214077J {
         
         if (body == null) Assert.fail("Body is null");
 
-        // Use safe get
-        Object lastObj = body.get("last");
-        Object emptyObj = body.get("empty");
-        Object numberObj = body.get("number");
+        Object numberObj = body.get("number"); // Current page index (0-based)
         Object totalPagesObj = body.get("totalPages");
         
-        // Logic:
-        // If we requested page 999 and got 200...
-        // 1. It might be empty content.
-        // 2. It might be the actual last page (some APIs clamp page number).
+        Assert.assertNotNull(numberObj, "Response missing 'number' field");
+        Assert.assertNotNull(totalPagesObj, "Response missing 'totalPages' field");
         
+        int number = Integer.parseInt(numberObj.toString());
+        int totalPages = Integer.parseInt(totalPagesObj.toString());
+        
+        // Strict Validation Check (Bug Detection):
+        // Requirement: "Status code 400 Bad Request or API returns last page"
+        // If the API returns 200 OK, the page index ('number') must be within the valid range [0, totalPages-1].
+        // If number >= totalPages, the API failed to clamp to the last page and failed to return 400.
+        
+        if (totalPages > 0) {
+            Assert.assertTrue(number < totalPages, 
+                "Detected API Bug: Request for out-of-bounds page returned 200 OK but did not clamp to last page. " +
+                "Returned page index: " + number + ", Total pages: " + totalPages);
+        }
+        
+        // Additional consistency checks
         List<?> content = response.jsonPath().getList("content");
-        
+        Object emptyObj = body.get("empty");
+        Object lastObj = body.get("last");
+
         if (content == null || content.isEmpty()) {
-             // Should be marked as empty
-             if (emptyObj instanceof Boolean) Assert.assertTrue((Boolean)emptyObj, "'empty' field should be true");
+             if (emptyObj instanceof Boolean) Assert.assertTrue((Boolean)emptyObj, "'empty' field should be true when content is empty");
         } else {
-             // If content is present, it implies page clamping or we have > 999 pages?
-             // Since we created very few categories, we definitely don't have 999 pages.
-             // So if content is not empty, it MUST be the last page (clamping).
-             if (lastObj instanceof Boolean) Assert.assertTrue((Boolean)lastObj, "Should be the last page if content is returned");
+             // If content is returned, it implies valid page.
+             // If we asked for page 999 and got content, it must be the last page.
+             if (lastObj instanceof Boolean && number == totalPages - 1) {
+                 Assert.assertTrue((Boolean)lastObj, "'last' should be true if this is the last page");
+             }
         }
     }
     

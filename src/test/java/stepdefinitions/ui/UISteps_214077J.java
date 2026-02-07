@@ -1,11 +1,14 @@
 package stepdefinitions.ui;
 
+import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.CategoriesPage;
 import pages.DashboardPage;
@@ -15,6 +18,7 @@ import pages.PlantsPage;
 import utils.ConfigReader;
 import utils.DriverFactory;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -493,91 +497,171 @@ public class UISteps_214077J {
         Assert.assertTrue(driver.getCurrentUrl().contains("/add") || driver.getCurrentUrl().contains("/create"), "Not on Add Category page");
     }
 
+    private String identifiedSubCategory;
     private String identifiedParentCategory;
+    private String identifiedPlantName;
 
-    @Given("I identify a category with a sub-category")
-    public void i_identify_a_category_with_a_sub_category() {
+    @Given("I identify a sub-category with a linked plant")
+    public void i_identify_a_sub_category_with_a_linked_plant() {
         if(categoriesPage == null) initPages();
+        if(plantsPage == null) initPages();
         
-        // Ensure we are at the start
-        if(!driver.getCurrentUrl().contains("/ui/categories") || driver.getCurrentUrl().contains("/add")) {
-            i_navigate_to_the_categories_page();
-        } else {
-             // If search was applied, clear it? A simple navigate works
-             i_navigate_to_the_categories_page();
-        }
+        System.out.println("[M4-UI-09] Looking for existing sub-category with linked plant...");
         
-        // 1. Scan for candidates
-        List<String> candidates = categoriesPage.getUniqueParentNamesFromTable();
-        System.out.println("Scanning for existing parent categories. Candidates found: " + candidates);
+        // For simplicity, create a test data set
+        int randomNum = (int) (Math.random() * 9000) + 1000;
+        String mainCat = "Main" + randomNum;  // e.g., "Main1234"
+        String subCat = "Sub" + randomNum;    // e.g., "Sub1234"
+        String plant = "Plt" + randomNum;     // e.g., "Plt1234"
         
-        identifiedParentCategory = null;
+        System.out.println("[M4-UI-09] Creating test data: Main=" + mainCat + ", Sub=" + subCat + ", Plant=" + plant);
         
-        for(String candidate : candidates) {
-             System.out.println("Verifying candidate: " + candidate);
-             categoriesPage.enterSearchKeyword(candidate);
-             categoriesPage.clickSearch();
-             try { Thread.sleep(500); } catch (InterruptedException e) {}
-             
-             // Check if the Parent Category itself appears in the list (Name matches candidate)
-             // We need strictly the Name column to be the candidate
-             if(categoriesPage.isCategoryInList(candidate)) {
-                 identifiedParentCategory = candidate;
-                 System.out.println("Identified valid parent category: " + identifiedParentCategory);
-                 break;
-             } else {
-                 System.out.println("Candidate " + candidate + " not found as a primary category entry.");
-             }
-        }
-        
-        // If not found, create one
-        if(identifiedParentCategory == null) {
-            System.out.println("No valid existing parent-child pair found. Creating new ones...");
-             // Clear any search filter
-            i_navigate_to_the_categories_page();
-
-            long timestamp = System.currentTimeMillis();
-            String parent = "ParCat_" + timestamp;
-            String child = "SubCat_" + timestamp;
-            
-            a_category_exists_with_a_sub_category(parent, child);
-            identifiedParentCategory = parent;
-        }
-    }
-
-    @When("I attempt to delete the identified category")
-    public void i_attempt_to_delete_the_identified_category() {
-        i_attempt_to_delete_the_identified_parent_category();
-    }
-
-    @When("I attempt to delete the identified parent category")
-    public void i_attempt_to_delete_the_identified_parent_category() {
-        Assert.assertNotNull(identifiedParentCategory, "No target category was identified to delete!");
-        
-        // Search for it to ensure we can click delete
-        categoriesPage.enterSearchKeyword(identifiedParentCategory);
-        categoriesPage.clickSearch();
+        // 1. Create Main Category
+        i_navigate_to_the_categories_page();
         try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        categoriesPage.clickAddCategory();
+        try { Thread.sleep(500); } catch (InterruptedException e) {}
+        categoriesPage.enterCategoryName(mainCat);
+        categoriesPage.clickSave();
+        try { Thread.sleep(3000); } catch (InterruptedException e) {}
         
-        categoriesPage.clickDeleteCategory(identifiedParentCategory);
+        // 2. Create Sub-Category under Main
+        if(!categoriesPage.isCategoriesPageDisplayed()) {
+            categoriesPage.clickCategoriesTab();
+            try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        }
+        categoriesPage.clickAddCategory();
+        try { Thread.sleep(500); } catch (InterruptedException e) {}
+        categoriesPage.enterCategoryName(subCat);
+        categoriesPage.selectParentCategory(mainCat);
+        categoriesPage.clickSave();
+        try { Thread.sleep(3000); } catch (InterruptedException e) {}
+        
+        // 3. Create Plant linked to Sub-Category
+        navigationMenu.clickLink("Plants");
+        try { Thread.sleep(1500); } catch (InterruptedException e) {}
+        plantsPage.clickAddaPlant();
+        try { Thread.sleep(500); } catch (InterruptedException e) {}
+        plantsPage.enterPlantName(plant);
+        plantsPage.selectPlantCategory(subCat);
+        plantsPage.enterPrice("25.00");
+        plantsPage.enterQuantity("50");
+        plantsPage.clickSave();
+        try { Thread.sleep(2000); } catch (InterruptedException e) {}
+        
+        // Navigate back to Categories
+        navigationMenu.clickLink("Category");
+        try { Thread.sleep(1500); } catch (InterruptedException e) {}
+        
+        identifiedSubCategory = subCat;
+        identifiedParentCategory = mainCat;
+        identifiedPlantName = plant;
+        
+        System.out.println("[M4-UI-09] Test data created successfully");
+    }
+
+    @When("I attempt to convert the sub-category into a main category")
+    public void i_attempt_to_convert_the_sub_category_into_a_main_category() {
+        Assert.assertNotNull(identifiedSubCategory, "No sub-category was identified!");
+        
+        System.out.println("[M4-UI-09] Attempting to edit sub-category: " + identifiedSubCategory);
+        
+        // Search for the sub-category
+        categoriesPage.enterSearchKeyword(identifiedSubCategory);
+        categoriesPage.clickSearch();
+        try { Thread.sleep(1500); } catch (InterruptedException e) {}
+        
+        // Click Edit
+        categoriesPage.clickEditCategory(identifiedSubCategory);
+        try { Thread.sleep(2000); } catch (InterruptedException e) {}
+        
+        // Try to remove parent (convert to main category)
+        categoriesPage.selectParentCategory(""); // Empty selection = Main Category
+        categoriesPage.clickSave();
+        try { Thread.sleep(2000); } catch (InterruptedException e) {}
+        
+        System.out.println("[M4-UI-09] Save clicked, checking for error...");
     }
     
-    @Then("The identified category should still be visible in the list")
-    public void the_identified_category_should_still_be_visible_in_the_list() {
-        the_identified_parent_category_should_still_be_visible_in_the_list();
+    @Then("I should see an error message indicating conversion is not allowed")
+    public void i_should_see_an_error_message_indicating_conversion_is_not_allowed() {
+        boolean isError = false;
+        String errorSource = "";
+        String errorText = "";
+
+        // Check for error alert on edit page
+        if(categoriesPage.isErrorAlertDisplayed()) {
+            errorText = categoriesPage.getErrorAlertText();
+            isError = true;
+            errorSource = "UI Alert";
+        }
+        
+        // Check for JS Alert
+        if(!isError) {
+            try {
+                org.openqa.selenium.Alert alert = driver.switchTo().alert();
+                errorText = alert.getText();
+                alert.accept();
+                isError = true;
+                errorSource = "JS Alert";
+            } catch (Exception e) {}
+        }
+
+        // Check for Backend Error Page
+        if(!isError) {
+            try {
+                String bodyText = driver.findElement(By.tagName("body")).getText();
+                if(bodyText.contains("Whitelabel Error Page") || 
+                   bodyText.contains("Internal Server Error")) {
+                    isError = true;
+                    errorSource = "Backend Error Page";
+                    errorText = bodyText;
+                    if(driver.getCurrentUrl().contains("error")) {
+                        driver.navigate().back();
+                    }
+                }
+            } catch(Exception e) {}
+        }
+        
+        System.out.println("[M4-UI-09] Conversion Prevention Check: " + isError + " (" + errorSource + ")");
+        System.out.println("[M4-UI-09] Error Text: " + errorText);
+
+        Assert.assertTrue(isError, "No error message was displayed preventing the conversion.");
+        
+        // Verify it's not a technical error
+        boolean isTechnicalError = errorText.contains("could not execute statement") || 
+                                   errorText.contains("foreign key constraint") || 
+                                   errorText.contains("SQL") ||
+                                   errorText.contains("Exception") ||
+                                   errorText.contains("Whitelabel Error Page");
+                                   
+        Assert.assertFalse(isTechnicalError, 
+            "Test Failed: System showed a technical/backend error instead of a user-friendly message. Error: " + errorText);
     }
     
-    @Then("The identified parent category should still be visible in the list")
-    public void the_identified_parent_category_should_still_be_visible_in_the_list() {
+    @Then("The sub-category should still have its parent category")
+    public void the_sub_category_should_still_have_its_parent_category() {
+        Assert.assertNotNull(identifiedSubCategory, "No sub-category was identified!");
         Assert.assertNotNull(identifiedParentCategory, "No parent category was identified!");
         
-        // Clear search or re-search to verify existence
-        categoriesPage.enterSearchKeyword(identifiedParentCategory);
+        System.out.println("[M4-UI-09] Verifying sub-category still has parent...");
+        
+        // Navigate back to categories list if not already there
+        if(!categoriesPage.isCategoriesPageDisplayed()) {
+            categoriesPage.clickCategoriesTab();
+            try { Thread.sleep(1500); } catch (InterruptedException e) {}
+        }
+        
+        // Search for sub-category
+        categoriesPage.enterSearchKeyword(identifiedSubCategory);
         categoriesPage.clickSearch();
-        try { Thread.sleep(1000); } catch (InterruptedException e) {}
-
-        Assert.assertTrue(categoriesPage.isCategoryInList(identifiedParentCategory), 
-            "Category " + identifiedParentCategory + " was deleted but should have been protected.");
+        try { Thread.sleep(1500); } catch (InterruptedException e) {}
+        
+        // Verify it still has the parent
+        Assert.assertTrue(categoriesPage.isCategoryInList(identifiedSubCategory, identifiedParentCategory),
+            "Sub-category " + identifiedSubCategory + " does not have parent " + identifiedParentCategory + " anymore!");
+        
+        System.out.println("[M4-UI-09] Verified: Sub-category still has its parent");
     }
 
     @Given("A category {string} exists with a sub-category {string}")
@@ -585,47 +669,177 @@ public class UISteps_214077J {
         if(categoriesPage == null) initPages();
         
         // 1. Ensure Parent Exists
+        System.out.println("[Setup] Checking if parent category exists: " + parentName);
+        i_navigate_to_the_categories_page();
+        try { Thread.sleep(1500); } catch (InterruptedException e) {}
+        
         categoriesPage.enterSearchKeyword(parentName);
         categoriesPage.clickSearch();
-        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        try { Thread.sleep(1500); } catch (InterruptedException e) {}
         
         if(!categoriesPage.isCategoryInList(parentName)) {
-            // Clear search to create
-            if(driver.getCurrentUrl().contains("search")) {
-                 i_navigate_to_the_categories_page(); 
-            }
+            System.out.println("[Setup] Parent category not found, creating: " + parentName);
+            
+            // Navigate to ensure clean state
+            i_navigate_to_the_categories_page(); 
+            try { Thread.sleep(1000); } catch (InterruptedException e) {}
             
             categoriesPage.clickAddCategory();
+            try { Thread.sleep(500); } catch (InterruptedException e) {}
             categoriesPage.enterCategoryName(parentName);
             categoriesPage.clickSave();
-            try { Thread.sleep(1000); } catch (InterruptedException e) {}
-            if(!categoriesPage.isCategoriesPageDisplayed()) categoriesPage.clickCategoriesTab();
+            
+            // Wait for save to complete and page to load
+            try { Thread.sleep(5000); } catch (InterruptedException e) {}
+            
+            // Ensure we're back on categories page
+            if(!categoriesPage.isCategoriesPageDisplayed()) {
+                System.out.println("[Setup] Not on categories page, clicking categories tab");
+                categoriesPage.clickCategoriesTab();
+                try { Thread.sleep(2000); } catch (InterruptedException e) {}
+            }
+            
+            // Verify parent was created successfully
+            i_navigate_to_the_categories_page();
+            try { Thread.sleep(2000); } catch (InterruptedException e) {}
+            categoriesPage.enterSearchKeyword(parentName);
+            categoriesPage.clickSearch();
+            try { Thread.sleep(1500); } catch (InterruptedException e) {}
+            
+            if(!categoriesPage.isCategoryInList(parentName)) {
+                throw new RuntimeException("[Setup] Failed to create parent category: " + parentName);
+            }
+            System.out.println("[Setup] Parent category created successfully: " + parentName);
+        } else {
+            System.out.println("[Setup] Parent category already exists: " + parentName);
         }
 
         // 2. Ensure Sub Exists
-        // Search specifically for sub to avoid false positives
-        i_navigate_to_the_categories_page(); 
+        System.out.println("[Setup] Checking if sub-category exists: " + subName);
+        i_navigate_to_the_categories_page();
+        try { Thread.sleep(1500); } catch (InterruptedException e) {}
+        
         categoriesPage.enterSearchKeyword(subName);
         categoriesPage.clickSearch();
-        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        try { Thread.sleep(1500); } catch (InterruptedException e) {}
         
         if(!categoriesPage.isCategoryInList(subName)) {
-             // Clear search to create
-            if(driver.getCurrentUrl().contains("search")) {
-                 i_navigate_to_the_categories_page(); 
-            }
+            System.out.println("[Setup] Sub-category not found, creating: " + subName);
+            
+            // Navigate to ensure clean state
+            i_navigate_to_the_categories_page(); 
+            try { Thread.sleep(1000); } catch (InterruptedException e) {}
             
             categoriesPage.clickAddCategory();
+            try { Thread.sleep(500); } catch (InterruptedException e) {}
             categoriesPage.enterCategoryName(subName);
             categoriesPage.selectParentCategory(parentName);
             categoriesPage.clickSave();
-            try { Thread.sleep(1000); } catch (InterruptedException e) {}
-            if(!categoriesPage.isCategoriesPageDisplayed()) categoriesPage.clickCategoriesTab();
+            
+            // Wait for save to complete and page to load
+            try { Thread.sleep(5000); } catch (InterruptedException e) {}
+            
+            // Ensure we're back on categories page
+            if(!categoriesPage.isCategoriesPageDisplayed()) {
+                System.out.println("[Setup] Not on categories page, clicking categories tab");
+                categoriesPage.clickCategoriesTab();
+                try { Thread.sleep(2000); } catch (InterruptedException e) {}
+            }
+            
+            // Verify sub-category was created successfully
+            i_navigate_to_the_categories_page();
+            try { Thread.sleep(2000); } catch (InterruptedException e) {}
+            categoriesPage.enterSearchKeyword(subName);
+            categoriesPage.clickSearch();
+            try { Thread.sleep(1500); } catch (InterruptedException e) {}
+            
+            if(!categoriesPage.isCategoryInList(subName)) {
+                throw new RuntimeException("[Setup] Failed to create sub-category: " + subName);
+            }
+            System.out.println("[Setup] Sub-category created successfully: " + subName);
+        } else {
+            System.out.println("[Setup] Sub-category already exists: " + subName);
         }
         
-        // Reset to full list or specific view?
-        // Let the next step determine what it needs.
+        // Reset to full list
         i_navigate_to_the_categories_page();
+        try { Thread.sleep(2000); } catch (InterruptedException e) {}
+        System.out.println("[Setup] Category setup complete");
+    }
+    
+    @After("@M4-UI-09")
+    public void cleanupM4UI09() {
+        System.out.println("[Cleanup M4-UI-09] Starting cleanup...");
+        if(identifiedSubCategory != null || identifiedParentCategory != null || identifiedPlantName != null) {
+            try {
+                if(categoriesPage == null || plantsPage == null) initPages();
+                
+                // 1. Delete Plant first
+                if(identifiedPlantName != null) {
+                    System.out.println("[Cleanup] Deleting plant: " + identifiedPlantName);
+                    try {
+                        navigationMenu.clickLink("Plants");
+                        try { Thread.sleep(1500); } catch (InterruptedException e) {}
+                        plantsPage.enterSearchPlantName(identifiedPlantName);
+                        plantsPage.clickSearch();
+                        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                        if(plantsPage.isPlantInList(identifiedPlantName)) {
+                            plantsPage.clickDeletePlant(identifiedPlantName);
+                            try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                            System.out.println("[Cleanup] Plant deleted: " + identifiedPlantName);
+                        }
+                    } catch(Exception e) {
+                        System.out.println("[Cleanup] Failed to delete plant: " + e.getMessage());
+                    }
+                }
+                
+                // 2. Delete Sub-Category
+                if(identifiedSubCategory != null) {
+                    System.out.println("[Cleanup] Deleting sub-category: " + identifiedSubCategory);
+                    try {
+                        navigationMenu.clickLink("Category");
+                        try { Thread.sleep(1500); } catch (InterruptedException e) {}
+                        categoriesPage.enterSearchKeyword(identifiedSubCategory);
+                        categoriesPage.clickSearch();
+                        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                        if(categoriesPage.isCategoryInList(identifiedSubCategory)) {
+                            categoriesPage.clickDeleteCategory(identifiedSubCategory);
+                            try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                            System.out.println("[Cleanup] Sub-category deleted: " + identifiedSubCategory);
+                        }
+                    } catch(Exception e) {
+                        System.out.println("[Cleanup] Failed to delete sub-category: " + e.getMessage());
+                    }
+                }
+                
+                // 3. Delete Main Category
+                if(identifiedParentCategory != null) {
+                    System.out.println("[Cleanup] Deleting main category: " + identifiedParentCategory);
+                    try {
+                        i_navigate_to_the_categories_page();
+                        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                        categoriesPage.enterSearchKeyword(identifiedParentCategory);
+                        categoriesPage.clickSearch();
+                        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                        if(categoriesPage.isCategoryInList(identifiedParentCategory)) {
+                            categoriesPage.clickDeleteCategory(identifiedParentCategory);
+                            try { Thread.sleep(1000); } catch (InterruptedException e) {}
+                            System.out.println("[Cleanup] Main category deleted: " + identifiedParentCategory);
+                        }
+                    } catch(Exception e) {
+                        System.out.println("[Cleanup] Failed to delete main category: " + e.getMessage());
+                    }
+                }
+                
+                System.out.println("[Cleanup M4-UI-09] Cleanup completed.");
+            } catch(Exception e) {
+                System.out.println("[Cleanup M4-UI-09] Error during cleanup: " + e.getMessage());
+            } finally {
+                identifiedSubCategory = null;
+                identifiedParentCategory = null;
+                identifiedPlantName = null;
+            }
+        }
     }
 
     @When("I click on the Delete button for category {string}")
@@ -692,6 +906,32 @@ public class UISteps_214077J {
                                     
          Assert.assertFalse(isTechnicalError, 
              "Test Failed: System showed a technical/backend error instead of a user-friendly message. Actual Error: " + errorText);
+    }
+    
+    // M4-UI-10: Delete category with linked plants
+    @When("I attempt to delete the identified category")
+    public void i_attempt_to_delete_the_identified_category() {
+        Assert.assertNotNull(identifiedParentCategory, "No target category was identified to delete!");
+        
+        // Search for it to ensure we can click delete
+        categoriesPage.enterSearchKeyword(identifiedParentCategory);
+        categoriesPage.clickSearch();
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        
+        categoriesPage.clickDeleteCategory(identifiedParentCategory);
+    }
+    
+    @Then("The identified category should still be visible in the list")
+    public void the_identified_category_should_still_be_visible_in_the_list() {
+        Assert.assertNotNull(identifiedParentCategory, "No category was identified!");
+        
+        // Clear search or re-search to verify existence
+        categoriesPage.enterSearchKeyword(identifiedParentCategory);
+        categoriesPage.clickSearch();
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+
+        Assert.assertTrue(categoriesPage.isCategoryInList(identifiedParentCategory), 
+            "Category " + identifiedParentCategory + " was deleted but should have been protected.");
     }
 
     @Given("I identify a category with a linked plant")
@@ -790,6 +1030,22 @@ public class UISteps_214077J {
     @Then("I should be on page {string} of categories")
     public void i_should_be_on_page_of_categories(String pageNum) {
         int expectedPage = Integer.parseInt(pageNum);
+        
+        // Wait for the page number to update to the expected value
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        try {
+            wait.until(driver -> {
+                int currentPage = categoriesPage.getActivePageNumber();
+                System.out.println("Current page number: " + currentPage + ", Expected: " + expectedPage);
+                return currentPage == expectedPage;
+            });
+        } catch (Exception e) {
+            // If wait times out, check one more time and fail with clear message
+            int actualPage = categoriesPage.getActivePageNumber();
+            Assert.assertEquals(actualPage, expectedPage, "Not on the expected page after waiting.");
+        }
+        
+        // Final verification
         int actualPage = categoriesPage.getActivePageNumber();
         Assert.assertEquals(actualPage, expectedPage, "Not on the expected page.");
     }

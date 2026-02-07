@@ -96,13 +96,13 @@ Feature: UI Tests (214077J)
     And I should see that I am still on the Add Category page
 
   @M4-UI-09 @UI
-  Scenario: Verify preventing deletion of category with sub-categories
+  Scenario: Verify preventing conversion of sub-category with linked plants into main category
     Given Admin is logged into the system
     And I navigate to the Categories page
-    And I identify a category with a sub-category
-    When I attempt to delete the identified parent category
-    Then I should see an error message indicating deletion is not allowed
-    And The identified parent category should still be visible in the list
+    And I identify a sub-category with a linked plant
+    When I attempt to convert the sub-category into a main category
+    Then I should see an error message indicating conversion is not allowed
+    And The sub-category should still have its parent category
 
   @M4-UI-10 @UI
   Scenario: Verify preventing deletion of category with linked plants

@@ -144,40 +144,23 @@ public class UISteps_214077J {
         Assert.assertNotNull(uiCountStr, "Total Plant count should not be null");
         int uiCount = Integer.parseInt(uiCountStr);
 
-        // API Count - Attempt to get all plants
-        Response response = APIUtils.get("/api/plants", getApiToken());
-        if (response.getStatusCode() == 200) {
-            // Check if it returns a list directly or a paged response or summary
-            // Assuming list based on "Get all plants" description
-            // If it returns a list
-            try {
-                int apiCount = response.jsonPath().getList("$").size();
-                Assert.assertEquals(uiCount, apiCount, "Total Plant count mismatch between UI and API");
-            } catch (Exception e) {
-                // If not a list, maybe summary? or paged?
-                // Try summary if list fails
-                 Response summaryRes = APIUtils.get("/api/plants/summary", getApiToken());
-                 if (summaryRes.getStatusCode() == 200) {
-                     // Assuming summary has a total field, otherwise fail
-                     // Try to match key like 'total', 'count', etc.
-                     // But for now fail if list structure is unexpected
-                     Assert.fail("Start identifying plant count API structure. Got: " + response.getBody().asString());
-                 }
-            }
-        } else {
-             Assert.fail("Failed to fetch plants from API. Status: " + response.getStatusCode());
-        }
+        // API Count
+        Response response = APIUtils.get("/api/plants/summary", getApiToken());
+        Assert.assertEquals(response.getStatusCode(), 200, "Failed to fetch plant summary from API");
+        // Extract totalPlants from JSON
+        int apiCount = response.jsonPath().getInt("totalPlants");
+
+        Assert.assertEquals(uiCount, apiCount, "Total Plant count mismatch between UI and API");
     }
     
     // Helper to get token (Reuse admin for system verification)
     private String getApiToken() {
         Map<String, String> credentials = new HashMap<>();
-        credentials.put("username", "admin");
-        credentials.put("password", "admin123");
+        credentials.put("username", ConfigReader.getProperty("testuser.username"));
+        credentials.put("password", ConfigReader.getProperty("testuser.password"));
         Response loginResponse = APIUtils.post("/api/auth/login", credentials, null);
         if (loginResponse.getStatusCode() != 200) {
-             // Fallback or retry? 
-             // Try testuser?? No, dashboard is usually admin view or consistent.
+             // Fallback
              throw new RuntimeException("Failed to get API token for verification. content: " + loginResponse.getBody().asString());
         }
         return loginResponse.jsonPath().getString("token");

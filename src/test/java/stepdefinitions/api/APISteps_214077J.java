@@ -286,6 +286,11 @@ public class APISteps_214077J {
         response = APIUtils.get("/api/categories/" + id, authToken);
     }
 
+    @When("I send a GET request to fetch a category with invalid format ID {string}")
+    public void i_send_a_get_request_to_fetch_a_category_with_invalid_format_id(String id) {
+        response = APIUtils.get("/api/categories/" + id, authToken);
+    }
+
     @Given("Valid Test User token is available")
     public void valid_test_user_token_is_available() {
         Map<String, String> credentials = new HashMap<>();
@@ -391,6 +396,72 @@ public class APISteps_214077J {
     public void tearDownCaseInsensitiveTest() {
         if (authToken != null) {
             cleanUpCategoryByName("MixCase");
+        }
+    }
+
+    @When("I send a GET request to {string} with page {int}")
+    public void i_send_a_get_request_to_with_page(String endpoint, int page) {
+        // endpoint is literal "/api/categories/page" string from feature file
+        // We append query param
+        response = APIUtils.get(endpoint + "?page=" + page + "&size=10", authToken);
+    }
+
+    @Then("The response status code is 400 or returns last page")
+    public void the_response_status_code_is_400_or_returns_last_page() {
+        int sc = response.getStatusCode();
+        if (sc == 400) {
+            // Pass
+            return;
+        } else if (sc == 200) {
+            // Verify if it is valid behavior (e.g. empty content or last page)
+            // We'll defer detailed check to the next step, but here we confirm 200 is acceptable
+        } else {
+            Assert.fail("Expected status 400 or 200, but got " + sc);
+        }
+    }
+
+    @Then("The pagination fields should be consistent")
+    public void the_pagination_fields_should_be_consistent() {
+        if (response.getStatusCode() == 400) return; // No pagination check needed if error
+
+        // If 200, check structure
+        Map<String, Object> body = null;
+        try {
+            body = response.jsonPath().getMap("$");
+        } catch (Exception e) {
+            Assert.fail("Response body is not a JSON object (Page object expected). Body: " + response.getBody().asString());
+        }
+        
+        if (body == null) Assert.fail("Body is null");
+
+        // Use safe get
+        Object lastObj = body.get("last");
+        Object emptyObj = body.get("empty");
+        Object numberObj = body.get("number");
+        Object totalPagesObj = body.get("totalPages");
+        
+        // Logic:
+        // If we requested page 999 and got 200...
+        // 1. It might be empty content.
+        // 2. It might be the actual last page (some APIs clamp page number).
+        
+        List<?> content = response.jsonPath().getList("content");
+        
+        if (content == null || content.isEmpty()) {
+             // Should be marked as empty
+             if (emptyObj instanceof Boolean) Assert.assertTrue((Boolean)emptyObj, "'empty' field should be true");
+        } else {
+             // If content is present, it implies page clamping or we have > 999 pages?
+             // Since we created very few categories, we definitely don't have 999 pages.
+             // So if content is not empty, it MUST be the last page (clamping).
+             if (lastObj instanceof Boolean) Assert.assertTrue((Boolean)lastObj, "Should be the last page if content is returned");
+        }
+    }
+    
+    @After("@M4-API-09")
+    public void tearDownExceedPageTest() {
+        if (authToken != null) {
+            cleanUpCategoryByName("PagExc");
         }
     }
 }

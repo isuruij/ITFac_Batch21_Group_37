@@ -65,12 +65,18 @@ Feature: API Tests (214077J)
     And The response should contain categories "PageCatOne" and "PageCatTwo"
 
   @M4-API-09 @API
-  Scenario: Verify Search Categories with Sorting for test user
+  Scenario: Verify Search with Page Number Exceeding Total Pages
     Given Valid Admin token is available
-    And A category with name "SortA" exists
-    And A category with name "SortB" exists
+    And A category with name "PagExc" exists
     And Valid Test User token is available
-    When I search for categories sorted by "name" in "desc" order
-    Then The response status code is 200
-    And The first category in list should be "SortB"
-    And The second category in list should be "SortA"
+    When I send a GET request to "/api/categories/page" with page 999
+    Then The response status code is 400 or returns last page
+    And The pagination fields should be consistent
+
+  @M4-API-10 @API
+  Scenario: Verify Invalid Category ID Format
+    Given Valid Admin token is available
+    When I send a GET request to fetch a category with invalid format ID "abc"
+    Then The response status code is 500
+    And The response should contain an error message
+

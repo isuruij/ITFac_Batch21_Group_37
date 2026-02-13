@@ -242,4 +242,9 @@ public class UISteps_214154T {
         Assert.assertTrue(plantsPage.isPaginationDisplayed(),
                 "Pagination controls are not displayed on Plants page!");
     }
+
+    @When("I click the Add a Plant button")
+    public void i_click_the_add_a_plant_button() {
+        plantsPage.clickAddPlant();
+    }
 }

@@ -119,11 +119,7 @@ public class APISteps_214154T {
     public void the_response_contains_the_first_page_of_plant_data() {
         firstPageData = response.jsonPath().getList("content");
 
-        if (firstPageData == null || firstPageData.isEmpty()) {
-            firstPageData = response.jsonPath().getList("$");
-        }
-
-        Assert.assertNotNull(firstPageData, "No plant data found in response");
+        Assert.assertNotNull(firstPageData, "No plant data found in response - 'content' field is missing");
         Assert.assertFalse(firstPageData.isEmpty(), "First page is empty");
     }
 
@@ -131,11 +127,9 @@ public class APISteps_214154T {
     public void the_response_contains_the_next_set_of_plant_records() {
         List<Object> secondPageData = response.jsonPath().getList("content");
 
-        if (secondPageData == null || secondPageData.isEmpty()) {
-            secondPageData = response.jsonPath().getList("$");
-        }
-
-        Assert.assertNotNull(secondPageData, "No plant data found in second page response");
+        Assert.assertNotNull(secondPageData,
+                "No plant data found in second page response - 'content' field is missing");
+        Assert.assertFalse(secondPageData.isEmpty(), "Second page is empty");
 
         // Verify pagination metadata if available
         Integer pageNumber = response.jsonPath().getInt("pageable.pageNumber");

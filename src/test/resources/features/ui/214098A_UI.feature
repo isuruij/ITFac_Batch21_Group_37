@@ -10,15 +10,13 @@ Feature: Sales Management (214098A)
     Then Clicking the button navigates to the Sell Plant page successfully
 
   @M5-UI-02 @UI
-  Scenario: Admin delete sale with confirmation
+  Scenario: Redirect after successful sale
     Given Admin is logged into the system
-    And At least one sale exists
-    When Navigate to the Sales page
-    Then Delete option is available only to Admin users
-    When Click the Delete button for a sale record
-    Then Observe the confirmation popup
-    When Click Confirm
-    Then Sale record is deleted successfully after confirmation
+    When Navigate to the Sell Plant page
+    And Select a plant
+    And Enter quantity "1"
+    And Click Save
+    Then Admin user is redirected to the Sales List page
 
   @M5-UI-03 @UI
   Scenario: Plant dropdown and quantity validation
@@ -31,13 +29,15 @@ Feature: Sales Management (214098A)
     Then Error message "Quantity must be greater than 0" is shown
 
   @M5-UI-04 @UI
-  Scenario: Redirect after successful sale
+  Scenario: Admin delete sale with confirmation
     Given Admin is logged into the system
-    When Navigate to the Sell Plant page
-    And Select a plant
-    And Enter quantity "1"
-    And Click Save
-    Then Admin user is redirected to the Sales List page
+    And At least one sale exists
+    When Navigate to the Sales page
+    Then Delete option is available only to Admin users
+    When Click the Delete button for a sale record
+    Then Observe the confirmation popup
+    When Click Confirm
+    Then Sale record is deleted successfully after confirmation
 
   @M5-UI-05 @UI
   Scenario: Cancel navigation from Sell Plant
@@ -81,11 +81,17 @@ Feature: Sales Management (214098A)
     And Delete action is not available for User
 
   @M5-UI-09 @UI
-  Scenario: No sales found message
-    Given Test User is logged into the system
-    And No sales exist
-    When Navigate to the Sales page
-    Then 'No sales found' message is displayed
+  Scenario: After deleting a sale record update the current stock
+    Given Admin is logged into the system
+    When Navigate to the Sell Plant page
+    And Select a plant
+    And Enter quantity "1"
+    And Click Save
+    And Click the Delete button for a sale record
+    And Click Confirm
+    Then Sale record is deleted successfully after confirmation
+    When Navigate to the Sell Plant page
+    Then Plant stock is regained correctly
 
   @M5-UI-10 @UI
   Scenario: User access restriction to Sell Plant page

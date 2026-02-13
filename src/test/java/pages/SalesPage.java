@@ -197,6 +197,14 @@ public class SalesPage {
         select.selectByIndex(index);
     }
 
+    public String getPlantOptionText(int index) {
+        Select select = new Select(plantDropdown);
+        if (select.getOptions().size() > index) {
+            return select.getOptions().get(index).getText();
+        }
+        return null;
+    }
+
     public void enterQuantity(String quantity) {
         quantityInput.clear();
         quantityInput.sendKeys(quantity);

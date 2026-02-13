@@ -10,10 +10,17 @@ import utils.DriverFactory;
 import utils.ConfigReader;
 import java.util.List;
 import java.util.Map;
+import org.openqa.selenium.devtools.NetworkInterceptor;
+import org.openqa.selenium.remote.http.HttpResponse;
+import org.openqa.selenium.remote.http.Route;
+import org.openqa.selenium.remote.http.HttpMethod;
+import org.openqa.selenium.remote.http.Contents;
 
 public class UISteps_214098A {
 
     SalesPage salesPage = new SalesPage(DriverFactory.getDriver());
+
+    private String capturedStockText;
 
     @When("Navigate to the Sales page")
     public void navigate_to_the_sales_page() {
@@ -89,6 +96,8 @@ public class UISteps_214098A {
     @When("Select a plant")
     public void select_a_plant() {
         try {
+            // Capture stock before selection
+            capturedStockText = salesPage.getPlantOptionText(1);
             salesPage.selectPlantByIndex(1);
         } catch (Exception e) {
             System.out.println("Warning: Could not select plant (index 1), likely list is empty. Proceeding.");
@@ -303,39 +312,18 @@ public class UISteps_214098A {
     @Given("No sales exist")
     public void no_sales_exist() {
         try {
-            // Login as Admin to get token
-            String token = RestAssured.given()
-                    .baseUri("http://localhost:8080")
-                    .contentType("application/json")
-                    .body("{\"username\": \"admin\", \"password\": \"admin123\"}")
-                    .post("/api/auth/login")
-                    .jsonPath().getString("token");
-
-            if (token == null) {
-                System.out.println("Warning: Admin login failed, cannot ensure no sales exist via API.");
-                return;
-            }
-
-            // Get all sales
-            List<Map<String, Object>> sales = RestAssured.given()
-                    .baseUri("http://localhost:8080")
-                    .header("Authorization", "Bearer " + token)
-                    .get("/api/sales")
-                    .jsonPath().getList("");
-
-            // Delete all sales
-            if (sales != null) {
-                for (Map<String, Object> sale : sales) {
-                    Integer id = (Integer) sale.get("id");
-                    RestAssured.given()
-                            .baseUri("http://localhost:8080")
-                            .header("Authorization", "Bearer " + token)
-                            .delete("/api/sales/" + id)
-                            .then().statusCode(204);
-                }
-            }
+            // Use NetworkInterceptor to mock an empty sales list
+            // This avoids deleting real data from the database
+            new NetworkInterceptor(
+                    DriverFactory.getDriver(),
+                    Route.matching(req -> req.getUri().contains("/api/sales") && req.getMethod() == HttpMethod.GET)
+                            .to(() -> req -> new HttpResponse()
+                                    .setStatus(200)
+                                    .addHeader("Content-Type", "application/json")
+                                    .setContent(Contents.utf8String("[]"))));
+            System.out.println("Using NetworkInterceptor to simulate empty sales list.");
         } catch (Exception e) {
-            System.out.println("Warning: Failed to cleanup sales via API: " + e.getMessage());
+            System.out.println("Warning: Failed to setup NetworkInterceptor: " + e.getMessage());
         }
     }
 
@@ -367,5 +355,11 @@ public class UISteps_214098A {
                 "Should not see sell form elements (reusing button check as proxy for page content if confused, but URL check is primary)");
         // Better:
         access_is_denied_or_user_is_redirected();
+    }
+
+    @Then("Plant stock is regained correctly")
+    public void plant_stock_is_regained_correctly() {
+        String currentText = salesPage.getPlantOptionText(1);
+        Assert.assertEquals(currentText, capturedStockText, "Stock not restored!");
     }
 }

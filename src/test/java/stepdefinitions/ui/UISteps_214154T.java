@@ -11,11 +11,9 @@ import utils.DriverFactory;
 
 public class UISteps_214154T {
 
-    LoginPage loginPage = new LoginPage(DriverFactory.getDriver());
-    PlantsPage plantsPage = new PlantsPage(DriverFactory.getDriver());
-
     @Given("Admin is logged into the system")
     public void admin_is_logged_into_the_system() {
+        LoginPage loginPage = new LoginPage(DriverFactory.getDriver());
         DriverFactory.getDriver().get(ConfigReader.getProperty("url") + "/ui/login");
         String adminUsername = ConfigReader.getProperty("admin.username");
         String adminPassword = ConfigReader.getProperty("admin.password");
@@ -31,22 +29,26 @@ public class UISteps_214154T {
 
     @When("Navigate to Plants tab using the side bar")
     public void navigate_to_plants_tab_using_the_side_bar() {
+        PlantsPage plantsPage = new PlantsPage(DriverFactory.getDriver());
         plantsPage.clickPlantsTab();
     }
 
     @When("Enter plant name in the search input box")
     public void enter_plant_name_in_the_search_input_box() {
+        PlantsPage plantsPage = new PlantsPage(DriverFactory.getDriver());
         String plantName = ConfigReader.getProperty("test.plant.name");
         plantsPage.enterPlantName(plantName);
     }
 
     @When("Click Search button")
     public void click_search_button() {
+        PlantsPage plantsPage = new PlantsPage(DriverFactory.getDriver());
         plantsPage.clickSearch();
     }
 
     @Then("Show the plant list filtered by entered name")
     public void show_the_plant_list_filtered_by_entered_name() {
+        PlantsPage plantsPage = new PlantsPage(DriverFactory.getDriver());
         String plantName = ConfigReader.getProperty("test.plant.name");
         Assert.assertTrue(plantsPage.isPlantInList(plantName),
                 "Plant " + plantName + " not found in the search results!");
@@ -61,14 +63,29 @@ public class UISteps_214154T {
 
     @When("Select the needed category from the category selector")
     public void select_the_needed_category_from_the_category_selector() {
+        PlantsPage plantsPage = new PlantsPage(DriverFactory.getDriver());
         String category = ConfigReader.getProperty("test.plant.category");
         plantsPage.selectCategory(category);
     }
 
     @Then("Show the plant list filtered by the selected category")
     public void show_the_plant_list_filtered_by_the_selected_category() {
+        PlantsPage plantsPage = new PlantsPage(DriverFactory.getDriver());
         String category = ConfigReader.getProperty("test.plant.category");
         Assert.assertTrue(plantsPage.isPlantListFilteredByCategory(category),
                 "Plants are not filtered by category: " + category);
+    }
+
+    @When("Click Quantity column header to sort by quantity")
+    public void click_quantity_column_header_to_sort_by_quantity() {
+        PlantsPage plantsPage = new PlantsPage(DriverFactory.getDriver());
+        plantsPage.clickQuantityHeader();
+    }
+
+    @Then("Show the sorted plants list by quantity")
+    public void show_the_sorted_plants_list_by_quantity() {
+        PlantsPage plantsPage = new PlantsPage(DriverFactory.getDriver());
+        Assert.assertTrue(plantsPage.isPlantListSortedByQuantity(),
+                "Plants are not sorted by quantity!");
     }
 }

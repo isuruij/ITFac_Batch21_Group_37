@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlantsPage {
@@ -31,9 +32,14 @@ public class PlantsPage {
     @FindBy(name = "category")
     WebElement categoryDropdown;
 
+    // Quantity Column Header (for sorting)
+    @FindBy(xpath = "//th[contains(text(), 'Quantity')]")
+    WebElement quantityColumnHeader;
+
     // Dynamic Locators
     By plantRowsLocator = By.xpath("//table[contains(@class, 'table')]//tbody//tr/td[1]");
     By plantCategoryLocator = By.xpath("//table[contains(@class, 'table')]//tbody//tr/td[3]");
+    By plantQuantityLocator = By.xpath("//table[contains(@class, 'table')]//tbody//tr/td[4]");
 
     public PlantsPage(WebDriver driver) {
         this.driver = driver;
@@ -109,6 +115,49 @@ public class PlantsPage {
                 return true; // All plants match the category
             } catch (StaleElementReferenceException e) {
                 attempts++;
+            }
+        }
+        return false;
+    }
+
+    public void clickQuantityHeader() {
+        quantityColumnHeader.click();
+    }
+
+    public boolean isPlantListSortedByQuantity() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        // Wait for table to be present
+        wait.until(ExpectedConditions.presenceOfElementLocated(plantRowsLocator));
+
+        // Retry logic for StaleElementReferenceException
+        int attempts = 0;
+        while (attempts < 3) {
+            try {
+                List<WebElement> quantityElements = driver.findElements(plantQuantityLocator);
+
+                if (quantityElements.isEmpty() || quantityElements.size() < 2) {
+                    return true; // Single or no items are considered sorted
+                }
+
+                // Extract quantities and verify they are in ascending order
+                List<Integer> quantities = new ArrayList<>();
+                for (WebElement element : quantityElements) {
+                    String quantityText = element.getText().trim();
+                    quantities.add(Integer.parseInt(quantityText));
+                }
+
+                // Check if sorted in ascending order
+                for (int i = 0; i < quantities.size() - 1; i++) {
+                    if (quantities.get(i) > quantities.get(i + 1)) {
+                        return false; // Not sorted
+                    }
+                }
+                return true; // Sorted
+            } catch (StaleElementReferenceException e) {
+                attempts++;
+            } catch (NumberFormatException e) {
+                return false; // Invalid quantity format
             }
         }
         return false;

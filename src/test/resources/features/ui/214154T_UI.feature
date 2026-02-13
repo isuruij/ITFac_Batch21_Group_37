@@ -22,3 +22,13 @@ Feature: Plant Management UI Tests for 214154T
     And Click Search button
     Then Show the plant list filtered by the selected category
 
+  # Test Case: M1-UI-03
+  @M1-UI-03 @UI
+  Scenario: Verify that Admin can sort plants by Quantity
+    Given Admin is logged into the system
+    And Existing plants are already added in the system
+    When Navigate to Plants tab using the side bar
+    And Click Quantity column header to sort by quantity
+    Then Show the sorted plants list by quantity
+
+

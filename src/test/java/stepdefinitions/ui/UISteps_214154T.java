@@ -4,6 +4,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.testng.Assert;
+import pages.AddPlantPage;
 import pages.LoginPage;
 import pages.PlantsPage;
 import utils.ConfigReader;
@@ -13,6 +14,7 @@ public class UISteps_214154T {
 
     LoginPage loginPage = new LoginPage(DriverFactory.getDriver());
     PlantsPage plantsPage = new PlantsPage(DriverFactory.getDriver());
+    AddPlantPage addPlantPage = new AddPlantPage(DriverFactory.getDriver());
 
     @Given("Admin is logged into the system")
     public void admin_is_logged_into_the_system() {

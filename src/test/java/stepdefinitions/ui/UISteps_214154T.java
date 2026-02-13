@@ -112,6 +112,7 @@ public class UISteps_214154T {
 
             plantsPage.clickAddPlant();
             addPlantPage.enterPlantName(plantName);
+            addPlantPage.selectCategory("sri lankan");
             addPlantPage.enterPrice(String.valueOf(1000 + i * 100));
             addPlantPage.enterQuantity(String.valueOf(10 + i));
             addPlantPage.clickSave();

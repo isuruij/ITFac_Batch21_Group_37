@@ -17,7 +17,16 @@ public class UISteps_214154T {
     @Given("Admin is logged into the system")
     public void admin_is_logged_into_the_system() {
         DriverFactory.getDriver().get(ConfigReader.getProperty("url") + "/ui/login");
-        loginPage.login("admin", "admin123");
+        String adminUsername = ConfigReader.getProperty("admin.username");
+        String adminPassword = ConfigReader.getProperty("admin.password");
+        loginPage.login(adminUsername, adminPassword);
+    }
+
+    @Given("Existing plants are already added in the system")
+    public void existing_plants_are_already_added_in_the_system() {
+        // Precondition: This test assumes that plants exist in the system
+        // The test will verify the search functionality using the configured test plant
+        // If needed, this step can be enhanced to verify plant existence via API
     }
 
     @When("Navigate to Plants tab using the side bar")
@@ -25,8 +34,9 @@ public class UISteps_214154T {
         plantsPage.clickPlantsTab();
     }
 
-    @When("Enter plant name {string} in the search input box")
-    public void enter_plant_name_in_the_search_input_box(String plantName) {
+    @When("Enter plant name in the search input box")
+    public void enter_plant_name_in_the_search_input_box() {
+        String plantName = ConfigReader.getProperty("test.plant.name");
         plantsPage.enterPlantName(plantName);
     }
 
@@ -35,8 +45,9 @@ public class UISteps_214154T {
         plantsPage.clickSearch();
     }
 
-    @Then("Show the plant list filtered by entered name {string}")
-    public void show_the_plant_list_filtered_by_entered_name(String plantName) {
+    @Then("Show the plant list filtered by entered name")
+    public void show_the_plant_list_filtered_by_entered_name() {
+        String plantName = ConfigReader.getProperty("test.plant.name");
         Assert.assertTrue(plantsPage.isPlantInList(plantName),
                 "Plant " + plantName + " not found in the search results!");
     }

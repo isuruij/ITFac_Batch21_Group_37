@@ -20,8 +20,8 @@ public class APISteps_214154T {
     @Given("Admin has a valid authorization token")
     public void admin_has_a_valid_authorization_token() {
         Map<String, String> credentials = new HashMap<>();
-        credentials.put("username", "admin");
-        credentials.put("password", "admin123");
+        credentials.put("username", utils.ConfigReader.getProperty("admin.username"));
+        credentials.put("password", utils.ConfigReader.getProperty("admin.password"));
 
         Response loginResponse = APIUtils.post("/api/auth/login", credentials, null);
 

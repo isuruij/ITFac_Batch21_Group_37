@@ -10,3 +10,15 @@ Feature: Plant Management UI Tests for 214154T
     And Enter plant name in the search input box
     And Click Search button
     Then Show the plant list filtered by entered name
+
+  # Test Case: M1-UI-02
+  @M1-UI-02 @UI
+  Scenario: Verify Admin can filter plants by Category
+    Given Admin is logged into the system
+    And Existing plants are already added in the system
+    And Existing categories are already added in the system
+    When Navigate to Plants tab using the side bar
+    And Select the needed category from the category selector
+    And Click Search button
+    Then Show the plant list filtered by the selected category
+

@@ -51,4 +51,24 @@ public class UISteps_214154T {
         Assert.assertTrue(plantsPage.isPlantInList(plantName),
                 "Plant " + plantName + " not found in the search results!");
     }
+
+    @Given("Existing categories are already added in the system")
+    public void existing_categories_are_already_added_in_the_system() {
+        // Precondition: This test assumes that categories exist in the system
+        // The test will verify the filter functionality using the configured test
+        // category
+    }
+
+    @When("Select the needed category from the category selector")
+    public void select_the_needed_category_from_the_category_selector() {
+        String category = ConfigReader.getProperty("test.plant.category");
+        plantsPage.selectCategory(category);
+    }
+
+    @Then("Show the plant list filtered by the selected category")
+    public void show_the_plant_list_filtered_by_the_selected_category() {
+        String category = ConfigReader.getProperty("test.plant.category");
+        Assert.assertTrue(plantsPage.isPlantListFilteredByCategory(category),
+                "Plants are not filtered by category: " + category);
+    }
 }

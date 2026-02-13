@@ -10,6 +10,7 @@ Feature: UI Tests (214154T)
     When Navigate to Plants tab using the side bar
     And Click 'Add a Plant' button
     And Fill a plant name "Rose_214154T"
+    And Select category "sri lankan"
     And Set price "1500"
     And Set quantity "50"
     And Click 'Save' button
@@ -26,6 +27,7 @@ Feature: UI Tests (214154T)
     When Navigate to Plants tab using the side bar
     And Click 'Add a Plant' button
     And Fill a plant name "Tulip_214154T"
+    And Select category "sri lankan"
     And Set price "2000"
     And Set quantity "100"
     And Click 'Save' button
@@ -42,16 +44,19 @@ Feature: UI Tests (214154T)
     When Navigate to Plants tab using the side bar
     And Click 'Add a Plant' button
     And Fill a plant name "Orchid_214154T"
+    And Select category "sri lankan"
     And Set price "3000"
     And Set quantity "10"
     And Click 'Save' button
     And Click 'Add a Plant' button
     And Fill a plant name "Lily_214154T"
+    And Select category "sri lankan"
     And Set price "2500"
     And Set quantity "50"
     And Click 'Save' button
     And Click 'Add a Plant' button
     And Fill a plant name "Daisy_214154T"
+    And Select category "sri lankan"
     And Set price "1800"
     And Set quantity "30"
     And Click 'Save' button
@@ -89,6 +94,7 @@ Feature: UI Tests (214154T)
     When Navigate to Plants tab using the side bar
     And Click 'Add a Plant' button
     And Fill a plant name "Sunflower_214154T"
+    And Select category "sri lankan"
     And Set price "1200"
     And Set quantity "40"
     And Click 'Save' button
@@ -106,6 +112,7 @@ Feature: UI Tests (214154T)
     When Navigate to Plants tab using the side bar
     And Click 'Add a Plant' button
     And Fill a plant name "Lavender_214154T"
+    And Select category "sri lankan"
     And Set price "1800"
     And Set quantity "60"
     And Click 'Save' button
@@ -123,16 +130,19 @@ Feature: UI Tests (214154T)
     When Navigate to Plants tab using the side bar
     And Click 'Add a Plant' button
     And Fill a plant name "Jasmine_214154T"
+    And Select category "sri lankan"
     And Set price "3500"
     And Set quantity "25"
     And Click 'Save' button
     And Click 'Add a Plant' button
     And Fill a plant name "Peony_214154T"
+    And Select category "sri lankan"
     And Set price "1500"
     And Set quantity "35"
     And Click 'Save' button
     And Click 'Add a Plant' button
     And Fill a plant name "Hibiscus_214154T"
+    And Select category "sri lankan"
     And Set price "2500"
     And Set quantity "45"
     And Click 'Save' button
@@ -150,16 +160,19 @@ Feature: UI Tests (214154T)
     When Navigate to Plants tab using the side bar
     And Click 'Add a Plant' button
     And Fill a plant name "Zinnia_214154T"
+    And Select category "sri lankan"
     And Set price "1000"
     And Set quantity "20"
     And Click 'Save' button
     And Click 'Add a Plant' button
     And Fill a plant name "Aster_214154T"
+    And Select category "sri lankan"
     And Set price "1100"
     And Set quantity "22"
     And Click 'Save' button
     And Click 'Add a Plant' button
     And Fill a plant name "Marigold_214154T"
+    And Select category "sri lankan"
     And Set price "1200"
     And Set quantity "24"
     And Click 'Save' button
@@ -177,16 +190,19 @@ Feature: UI Tests (214154T)
     When Navigate to Plants tab using the side bar
     And Click 'Add a Plant' button
     And Fill a plant name "Carnation_214154T"
+    And Select category "sri lankan"
     And Set price "1400"
     And Set quantity "15"
     And Click 'Save' button
     And Click 'Add a Plant' button
     And Fill a plant name "Daffodil_214154T"
+    And Select category "sri lankan"
     And Set price "1600"
     And Set quantity "55"
     And Click 'Save' button
     And Click 'Add a Plant' button
     And Fill a plant name "Iris_214154T"
+    And Select category "sri lankan"
     And Set price "1700"
     And Set quantity "35"
     And Click 'Save' button

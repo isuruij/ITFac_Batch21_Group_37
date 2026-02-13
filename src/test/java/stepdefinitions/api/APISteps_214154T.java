@@ -49,8 +49,8 @@ public class APISteps_214154T {
     @Given("User has a valid authorization token")
     public void user_has_a_valid_authorization_token() {
         Map<String, String> credentials = new HashMap<>();
-        credentials.put("username", "user");
-        credentials.put("password", "user123");
+        credentials.put("username", "testuser");
+        credentials.put("password", "test123");
 
         Response loginResponse = APIUtils.post("/api/auth/login", credentials, null);
 

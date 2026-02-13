@@ -31,7 +31,7 @@ public class UISteps_214154T {
     @Given("User is logged into the system")
     public void user_is_logged_into_the_system() {
         DriverFactory.getDriver().get(ConfigReader.getProperty("url") + "/ui/login");
-        loginPage.login("user", "user123");
+        loginPage.login("testuser", "test123");
     }
 
     @When("Navigate to Plants tab using the side bar")
@@ -128,12 +128,6 @@ public class UISteps_214154T {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
-    }
-
-    @Then("I should see pagination controls")
-    public void i_should_see_pagination_controls() {
-        Assert.assertTrue(plantsPage.isPaginationDisplayed(),
-                "Pagination controls are not displayed!");
     }
 
     @When("I click the Next button")

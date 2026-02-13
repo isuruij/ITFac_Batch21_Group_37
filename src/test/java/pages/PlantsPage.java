@@ -95,13 +95,19 @@ public class PlantsPage {
     }
 
     public void enterSearchPlantName(String name) {
-        searchInput.clear();
-        searchInput.sendKeys(name);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.ignoring(StaleElementReferenceException.class);
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.name("name")));
+        element.clear();
+        element.sendKeys(name);
     }
 
     public void enterPlantName(String name) {
-        plantNameInput.clear();
-        plantNameInput.sendKeys(name);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.ignoring(StaleElementReferenceException.class);
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.name("name")));
+        element.clear();
+        element.sendKeys(name);
     }
 
     public void enterPrice(String price) {
@@ -132,11 +138,18 @@ public class PlantsPage {
     }
 
     public void clickSearch() {
-        searchBtn.click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.ignoring(StaleElementReferenceException.class);
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[contains(@class, 'btn-primary') and contains(text(), 'Search')]")));
+        element.click();
     }
 
     public void clickAddPlant() {
-        addPlantBtn.click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.ignoring(StaleElementReferenceException.class);
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(addPlantBtn));
+        element.click();
     }
 
     public void clickAddaPlant() {

@@ -80,7 +80,7 @@ Feature: UI Tests (214154T)
   Scenario: Verify that show pagination for table in Plants page to the Admin
     When Navigate to Plants tab using the side bar
     And Create 15 test plants for pagination
-    Then I should see pagination controls
+    Then I should see plants pagination controls
     When I click the Next button
     Then The relevant page of plants is displayed in the table
     When I click the Previous button

@@ -110,6 +110,14 @@ public class UISteps_214154T {
             String plantName = "PaginationPlant" + i + "_214154T";
             paginationTestPlants.add(plantName);
 
+            if (i > 1 || !plantsPage.isAddPlantButtonVisible()) {
+                plantsPage.clickPlantsTab();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                }
+            }
+
             plantsPage.clickAddPlant();
             addPlantPage.enterPlantName(plantName);
             addPlantPage.selectCategory("sri lankan");
@@ -227,5 +235,11 @@ public class UISteps_214154T {
 
         Assert.assertTrue(isAscending || isDescending,
                 "Plants list is not sorted by name. Names: " + names);
+    }
+
+    @Then("I should see plants pagination controls")
+    public void i_should_see_plants_pagination_controls() {
+        Assert.assertTrue(plantsPage.isPaginationDisplayed(),
+                "Pagination controls are not displayed on Plants page!");
     }
 }

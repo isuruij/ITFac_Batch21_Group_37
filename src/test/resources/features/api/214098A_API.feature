@@ -3,13 +3,13 @@ Feature: API Tests (214098A)
   @M5-API-01 @API
   Scenario: Create a sale for a plant
     Given I have a valid Admin token for Sales
-    When I send a POST request to create a sale for the newly created plant with quantity 5
+    When I send a POST request to create a sale for plant 3 with quantity 5
     Then I verify the sales response status code is 201
 
   @M5-API-02 @API
   Scenario: Get Sale details by ID
     Given I have a valid Admin token for Sales
-    When I send a GET request to fetch the sale with ID 2
+    When I send a GET request to fetch the sale with ID 23
     Then I verify the sales response status code is 200
 
   @M5-API-03 @API
@@ -27,13 +27,7 @@ Feature: API Tests (214098A)
   @M5-API-05 @API
   Scenario: Sale API role restriction - Create
     Given I have a valid User token for Sales
-    When I send a POST request to create a sale for plant 2 with quantity 5
-    Then I verify the sales response status code is 403
-
-  @M5-API-05 @API
-  Scenario: Sale API role restriction - Delete
-    Given I have a valid User token for Sales
-    When I send a DELETE request to delete the sale with ID 2
+    When I send a POST request to create a sale for plant 4 with quantity 5
     Then I verify the sales response status code is 403
 
   @M5-API-06 @API
@@ -45,7 +39,7 @@ Feature: API Tests (214098A)
   @M5-API-07 @API
   Scenario: Get sale by ID API
     Given I have a valid User token for Sales
-    When I send a GET request to fetch the sale with ID 13
+    When I send a GET request to fetch the sale with ID 23
     Then I verify the sales response status code is 200
 
   @M5-API-08 @API
@@ -57,7 +51,7 @@ Feature: API Tests (214098A)
   @M5-API-09 @API
   Scenario: Restricted to delete sale API
     Given I have a valid User token for Sales
-    When I send a DELETE request to delete the sale with ID 5
+    When I send a DELETE request to delete the sale with ID 28
     Then I verify the sales response status code is 403
 
   @M5-API-10 @API

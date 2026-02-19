@@ -10,19 +10,24 @@ import org.openqa.selenium.support.ui.Select;
 public class AddPlantPage {
     WebDriver driver;
 
-    @FindBy(name = "name")
+    // Based on actual HTML: <input type="text" id="name" name="name">
+    @FindBy(id = "name")
     WebElement plantNameInput;
 
-    @FindBy(xpath = "//select") 
+    // Based on actual HTML: <select id="categoryId" name="categoryId">
+    @FindBy(id = "categoryId")
     WebElement categoryDropdown;
 
-    @FindBy(name = "price")
+    // Based on actual HTML: <input type="number" id="price" name="price">
+    @FindBy(id = "price")
     WebElement priceInput;
 
-    @FindBy(name = "quantity")
+    // Based on actual HTML: <input type="number" id="quantity" name="quantity">
+    @FindBy(id = "quantity")
     WebElement quantityInput;
 
-    @FindBy(xpath = "//button[text()='Save']")
+    // Based on actual HTML: <button class="btn btn-primary">Save</button>
+    @FindBy(xpath = "//button[contains(@class, 'btn-primary') and text()='Save']")
     WebElement saveBtn;
 
     // Error message: Assuming it's an alert or div with specific class
@@ -61,7 +66,7 @@ public class AddPlantPage {
     public String getErrorMessage() {
         // Wait for visibility
         new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-            .until(org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf(errorMessage));
+                .until(org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf(errorMessage));
         return errorMessage.getText();
     }
 }

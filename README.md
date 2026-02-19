@@ -23,6 +23,11 @@ This project implements a unified test automation framework using Cucumber, Sele
 mvn clean test
 ```
 
+##How to run specific test
+```bash
+mvn clean test -Dcucumber.filter.tags="@M1-API-01"
+```
+
 ### View Reports
 ```bash
 mvn allure:serve
